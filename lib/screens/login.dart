@@ -4,6 +4,9 @@ import 'package:chat_app/widgets/cardform.dart';
 import 'package:flutter/material.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+final _firebase = FirebaseAuth.instance;
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -11,9 +14,14 @@ class LoginScreen extends StatelessWidget {
   //Para el paquete Wave
   final _backgroundColor = const Color.fromARGB(255, 2, 84, 226);
 
-  final colors = [
+  final lightcolors = [
     const Color.fromARGB(255, 31, 109, 255),
     Colors.white,
+  ];
+
+  final darkcolors = [
+    const Color.fromARGB(255, 0, 42, 120),
+    Colors.black87,
   ];
 
   final durations = [7240, 8000];
@@ -39,7 +47,10 @@ class LoginScreen extends StatelessWidget {
                     WaveWidget(
                       config: CustomConfig(
                           durations: durations,
-                          colors: colors,
+                          colors:
+                              Theme.of(context).brightness == Brightness.light
+                                  ? lightcolors
+                                  : darkcolors,
                           heightPercentages: _heights),
                       size: const Size(double.infinity, double.infinity),
                       waveAmplitude: 0,
@@ -91,48 +102,47 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: Container(
-                  color: Colors.white,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      const Divider(),
-                      const Text('¿No tienes una cuenta?'),
-                      ElevatedButton(
-                          onPressed: () {
-                            showModalBottomSheet(
-                                useSafeArea: true,
-                                isScrollControlled: true,
-                                context: context,
-                                builder: (context) => const RegisterDialog());
-                          },
-                          child: const Text('Registrarse')),
-                      const SizedBox(
-                        height: 36,
-                      ),
-                      const Text('También puedes iniciar sesión con:'),
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      InkWell(
-                        onTap: () {},
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black26),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Image.asset(
-                            'assets/images/Google_logo.png',
-                            height: 44,
-                          ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const Divider(),
+                    const Text('¿No tienes una cuenta?'),
+                    ElevatedButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                              useSafeArea: true,
+                              isScrollControlled: true,
+                              context: context,
+                              builder: (context) => const RegisterDialog());
+                        },
+                        child: const Text('Registrarse')),
+                    const SizedBox(
+                      height: 36,
+                    ),
+                    const Text(
+                      'También puedes iniciar sesión con:',
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    InkWell(
+                      onTap: () {},
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black26),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Image.asset(
+                          'assets/images/Google_logo.png',
+                          height: 44,
                         ),
                       ),
-                      const SizedBox(
-                        height: 36,
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(
+                      height: 36,
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -159,9 +169,31 @@ class _RegisterDialogState extends State<RegisterDialog> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
+  //Funcion de registro
+  Future<bool> _register(String email, String password) async {
+    try {
+      await _firebase.createUserWithEmailAndPassword(
+          email: email, password: password);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('La contraseña es muy débil');
+      } else if (e.code == 'email-already-in-use') {
+        print('El correo ya está en uso');
+      }
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+      ),
       padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisSize: MainAxisSize.max,
@@ -185,6 +217,10 @@ class _RegisterDialogState extends State<RegisterDialog> {
                     if (value!.isEmpty) {
                       return 'Por favor ingrese su correo electrónico';
                     }
+                    if (!value.contains('@')) {
+                      return 'Por favor ingrese un correo electrónico válido';
+                    }
+
                     return null;
                   },
                   onEditingComplete: () => FocusScope.of(context).nextFocus(),
@@ -205,6 +241,12 @@ class _RegisterDialogState extends State<RegisterDialog> {
                     if (value!.isEmpty) {
                       return 'Por favor ingrese su contraseña';
                     }
+
+                    //Validar que la contraseña tenga al menos 6 caracteres
+                    if (value.length < 6) {
+                      return 'La contraseña debe tener al menos 6 caracteres';
+                    }
+
                     return null;
                   },
                   onEditingComplete: () => FocusScope.of(context).nextFocus(),
@@ -234,6 +276,26 @@ class _RegisterDialogState extends State<RegisterDialog> {
                   controller: confirmPasswordController,
                   textCapitalization: TextCapitalization.none,
                 ),
+                //Numero de telefono
+                const SizedBox(
+                  height: 16,
+                ),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Número de teléfono',
+                    hintText: '097...',
+                    icon: Icon(Icons.phone),
+                  ),
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Por favor ingrese su número de teléfono';
+                    }
+                    return null;
+                  },
+                  onEditingComplete: () => FocusScope.of(context).unfocus(),
+                  textCapitalization: TextCapitalization.none,
+                ),
                 const SizedBox(
                   height: 16,
                 ),
@@ -249,7 +311,12 @@ class _RegisterDialogState extends State<RegisterDialog> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        if (_formKey.currentState!.validate()) {}
+                        if (_formKey.currentState!.validate()) {
+                          _register(
+                                  emailController.text, passwordController.text)
+                              .then((value) =>
+                                  value ? Navigator.pop(context) : null);
+                        }
                       },
                       child: const Text('Registrarse'),
                     ),

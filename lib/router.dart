@@ -1,6 +1,7 @@
 import 'package:chat_app/screens/chat.dart';
 import 'package:chat_app/screens/home.dart';
 import 'package:chat_app/screens/login.dart';
+import 'package:chat_app/screens/profileedit.dart';
 import 'package:fluro/fluro.dart';
 
 class Routes {
@@ -21,6 +22,12 @@ class Routes {
         handler: Handler(
           handlerFunc: (context, parameters) => ChatScreen(
             chatId: parameters['id']![0],
+          ),
+        ));
+    router.define('/useredit/:id',
+        handler: Handler(
+          handlerFunc: (context, parameters) => ProfileEditScreen(
+            userId: parameters['id']![0],
           ),
         ));
   }
