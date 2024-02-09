@@ -57,6 +57,8 @@ void main() async {
   final email = box.get('email');
   final password = box.get('password');
 
+  bool darkthemeMode = box.get('themeMode', defaultValue: false);
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   initialRoute = await autoLogin(email, password);
@@ -69,7 +71,7 @@ void main() async {
 
   runApp(
     EasyDynamicThemeWidget(
-      initialThemeMode: ThemeMode.dark,
+      initialThemeMode: darkthemeMode ? ThemeMode.dark : ThemeMode.light,
       child: const MyApp(),
     ),
   );

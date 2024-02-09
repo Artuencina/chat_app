@@ -97,6 +97,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     //Cambiar el tema
                     EasyDynamicTheme.of(context).changeTheme(dark: darkMode);
+
+                    //Guardar en el box settings el valor del tema
+                    Hive.openBox('settings').then((value) {
+                      value.put('themeMode', darkMode);
+                    });
                   },
                 ),
                 Padding(
