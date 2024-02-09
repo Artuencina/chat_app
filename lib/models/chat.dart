@@ -1,12 +1,15 @@
 //Modelo de chat entre dos usuarios
 
+// ignore_for_file: must_be_immutable
+
 import 'package:chat_app/models/user.dart';
+import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 part 'chat.g.dart';
 
 @HiveType(typeId: 2)
-class Chat {
+class Chat extends Equatable {
   @HiveField(0)
   final String id;
   @HiveField(1)
@@ -27,5 +30,7 @@ class Chat {
       required this.otherUser,
       this.lastMessageTime});
 
-  //Adaptador de Hive para el modelo Chat
+  @override
+  List<Object?> get props =>
+      [id, user, lastMessage, otherUser, lastMessageTime, unreadMessages];
 }

@@ -1,3 +1,5 @@
+import 'package:chat_app/cubits/chat/chatcubit.dart';
+import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:chat_app/dependency.dart';
 import 'package:chat_app/firebase_options.dart';
 import 'package:chat_app/router.dart';
@@ -5,6 +7,7 @@ import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -97,12 +100,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      initialRoute: initialRoute,
-      theme: theme,
-      darkTheme: darkTheme,
-      themeMode: EasyDynamicTheme.of(context).themeMode,
-      onGenerateRoute: Routes.router.generator,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<UserCubit>(
+          create: (context) =>
+              sl()..getUserById(FirebaseAuth.instance.currentUser!.uid),
+        ),
+        BlocProvider<ChatCubit>(
+          create: (context) => sl()..loadChats(),
+        ),
+      ],
+      child: MaterialApp(
+        initialRoute: initialRoute,
+        theme: theme,
+        darkTheme: darkTheme,
+        themeMode: EasyDynamicTheme.of(context).themeMode,
+        onGenerateRoute: Routes.router.generator,
+      ),
     );
   }
 }

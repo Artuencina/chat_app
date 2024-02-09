@@ -1,10 +1,7 @@
-import 'package:chat_app/cubits/chat/chatcubit.dart';
-import 'package:chat_app/dependency.dart';
 import 'package:chat_app/widgets/chattiles.dart';
 import 'package:chat_app/widgets/settings.dart';
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -79,13 +76,10 @@ class _HomeScreenState extends State<HomeScreen> {
               index = i;
             });
           },
-          children: [
-            BlocProvider<ChatCubit>(
-              create: (context) => sl()..loadChats(),
-              child: const Chats(),
-            ),
-            const Center(child: Text('Contactos')),
-            const SettingsScreen(),
+          children: const [
+            Chats(),
+            Center(child: Text('Contactos')),
+            SettingsScreen(),
           ],
         ),
       ),

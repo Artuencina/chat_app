@@ -1,9 +1,11 @@
 //Pantalla de login
 
+import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/repository/hiverepository.dart';
 import 'package:chat_app/widgets/cardform.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
@@ -114,10 +116,23 @@ class LoginScreen extends StatelessWidget {
                     ElevatedButton(
                         onPressed: () {
                           showModalBottomSheet(
-                              useSafeArea: true,
-                              isScrollControlled: true,
-                              context: context,
-                              builder: (context) => const RegisterDialog());
+                                  useSafeArea: true,
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (context) => const RegisterDialog())
+                              .then(
+                            (value) {
+                              final userId = value as String?;
+
+                              //Si el userId no es null, ir a la pantalla de edicion de perfil
+                              if (userId != null) {
+                                Navigator.of(context).pop();
+
+                                Navigator.pushReplacementNamed(
+                                    context, '/usercreate/$userId');
+                              }
+                            },
+                          );
                         },
                         child: const Text('Registrarse')),
                     const SizedBox(
@@ -326,7 +341,9 @@ class _RegisterDialogState extends State<RegisterDialog> {
                                   name: emailController.text.split('@')[0],
                                   phone: phoneController.text,
                                   imageUrl: '');
-                              HiveRepository().saveUser(user);
+
+                              //Guardar el usuario en Hive
+                              context.read<UserCubit>().updateUser(user);
 
                               //Iniciar sesion
                               _firebase.signInWithEmailAndPassword(
@@ -339,8 +356,7 @@ class _RegisterDialogState extends State<RegisterDialog> {
                                   passwordController.text);
 
                               //Ir a la pantalla de edicion de perfil con el id del usuario
-                              Navigator.pushReplacementNamed(
-                                  context, '/usercreate/${user.id}');
+                              Navigator.of(context).pop(user.id);
                             }
                           });
                         }

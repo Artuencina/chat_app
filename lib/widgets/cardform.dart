@@ -1,5 +1,7 @@
+import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/adapters.dart';
 
 final _firebase = FirebaseAuth.instance;
@@ -132,7 +134,11 @@ class _LoginFormState extends State<LoginForm> {
                       _login(emailController.text, passwordController.text)
                           .then((value) => {
                                 if (value)
-                                  {Navigator.pushReplacementNamed(context, '/')}
+                                  {
+                                    //TODO: obtener datos de usuario desde firebase
+
+                                    Navigator.pushReplacementNamed(context, '/')
+                                  }
                                 else
                                   {
                                     ScaffoldMessenger.of(context).showSnackBar(

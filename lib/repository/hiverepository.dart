@@ -62,6 +62,17 @@ class HiveRepository {
     await box.put(user.id, user);
   }
 
+  //Meotodo para eliminar un usuario
+  Future<void> deleteUser(AppUser user) async {
+    if (Hive.isBoxOpen('users') == true) {
+      final box = Hive.box('users');
+      await box.delete(user.id);
+      return;
+    }
+    final box = await Hive.openBox<AppUser>('users');
+    await box.delete(user.id);
+  }
+
   //Metodo para obtener todos los usuarios
   Future<List<AppUser>> getUsers() async {
     final box = await Hive.openBox<AppUser>('users');
