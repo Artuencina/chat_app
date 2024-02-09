@@ -1,3 +1,4 @@
+import 'package:chat_app/dependency.dart';
 import 'package:chat_app/firebase_options.dart';
 import 'package:chat_app/router.dart';
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
@@ -7,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:path_provider/path_provider.dart';
 
 final ThemeData theme = ThemeData(
   primaryColor: Colors.blue[100],
@@ -46,10 +46,10 @@ void main() async {
 
   Routes.configureRoutes();
 
-  final dir = await getApplicationDocumentsDirectory();
-  await Hive.initFlutter(dir.path);
+  await initializeDependencies();
 
   var box = await Hive.openBox('settings');
+  await Hive.openBox('users');
 
   final email = box.get('email');
   final password = box.get('password');
@@ -78,12 +78,12 @@ void main() async {
 //Si user no es null, entonces con firebase lo intenta logear automaticamente
 //y si lo logra, redirige a la pantalla de home
 Future<String> autoLogin(String? email, String? password) async {
-  if (email == null) {
+  if (email == null || password == null) {
     return '/login';
   } else {
     try {
       await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password!);
+          .signInWithEmailAndPassword(email: email, password: password);
       return '/';
     } on FirebaseAuthException catch (e) {
       print(e);

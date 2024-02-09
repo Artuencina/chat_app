@@ -1,13 +1,13 @@
 //Imagen de perfil con Hero que se abre y se ubica en el medio de la pantalla
 //Solo aparece la foto, el nombre, descripcion y telefono. El resto es transparente
 
-import 'package:chat_app/chats.dart';
+import 'package:chat_app/models/user.dart';
 import 'package:flutter/material.dart';
 
 class ProfileHero extends StatelessWidget {
   const ProfileHero({super.key, required this.user});
 
-  final User user;
+  final AppUser user;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class ProfileHero extends StatelessWidget {
                   height: 30,
                 ),
                 Hero(
-                  tag: 'user',
+                  tag: user.id,
                   child: CircleAvatar(
                     //backgroundColor: Colors.grey,
                     backgroundImage: NetworkImage(user.imageUrl),
@@ -63,6 +63,9 @@ class ProfileHero extends StatelessWidget {
                     color: Colors.white,
                     fontSize: 15,
                   ),
+                ),
+                const SizedBox(
+                  height: 10,
                 ),
               ],
             ),

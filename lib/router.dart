@@ -30,5 +30,12 @@ class Routes {
             userId: parameters['id']![0],
           ),
         ));
+    router.define('/usercreate/:id',
+        handler: Handler(
+          handlerFunc: (context, parameters) => ProfileEditScreen(
+            userId: parameters['id']![0],
+            firstTime: true,
+          ),
+        ));
   }
 }

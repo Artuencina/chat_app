@@ -1,7 +1,10 @@
 //Pantalla de login
 
+import 'package:chat_app/models/user.dart';
+import 'package:chat_app/repository/hiverepository.dart';
 import 'package:chat_app/widgets/cardform.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -168,6 +171,7 @@ class _RegisterDialogState extends State<RegisterDialog> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  final phoneController = TextEditingController();
 
   //Funcion de registro
   Future<bool> _register(String email, String password) async {
@@ -177,10 +181,7 @@ class _RegisterDialogState extends State<RegisterDialog> {
       return true;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        print('La contraseña es muy débil');
-      } else if (e.code == 'email-already-in-use') {
-        print('El correo ya está en uso');
-      }
+      } else if (e.code == 'email-already-in-use') {}
       return false;
     }
   }
@@ -231,6 +232,7 @@ class _RegisterDialogState extends State<RegisterDialog> {
                   height: 16,
                 ),
                 TextFormField(
+                  obscureText: true,
                   decoration: const InputDecoration(
                     labelText: 'Contraseña',
                     hintText: '********',
@@ -257,6 +259,7 @@ class _RegisterDialogState extends State<RegisterDialog> {
                   height: 16,
                 ),
                 TextFormField(
+                  obscureText: true,
                   decoration: const InputDecoration(
                     labelText: 'Confirmar contraseña',
                     hintText: '********',
@@ -281,6 +284,7 @@ class _RegisterDialogState extends State<RegisterDialog> {
                   height: 16,
                 ),
                 TextFormField(
+                  controller: phoneController,
                   decoration: const InputDecoration(
                     labelText: 'Número de teléfono',
                     hintText: '097...',
@@ -314,8 +318,31 @@ class _RegisterDialogState extends State<RegisterDialog> {
                         if (_formKey.currentState!.validate()) {
                           _register(
                                   emailController.text, passwordController.text)
-                              .then((value) =>
-                                  value ? Navigator.pop(context) : null);
+                              .then((value) {
+                            if (value) {
+                              final AppUser user = AppUser(
+                                  id: _firebase.currentUser!.uid,
+                                  email: emailController.text,
+                                  name: emailController.text.split('@')[0],
+                                  phone: phoneController.text,
+                                  imageUrl: '');
+                              HiveRepository().saveUser(user);
+
+                              //Iniciar sesion
+                              _firebase.signInWithEmailAndPassword(
+                                  email: emailController.text,
+                                  password: passwordController.text);
+
+                              //Guardar los datos de inicio de sesion
+                              HiveRepository().saveLoginData(
+                                  emailController.text,
+                                  passwordController.text);
+
+                              //Ir a la pantalla de edicion de perfil con el id del usuario
+                              Navigator.pushReplacementNamed(
+                                  context, '/usercreate/${user.id}');
+                            }
+                          });
                         }
                       },
                       child: const Text('Registrarse'),

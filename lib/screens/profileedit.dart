@@ -1,23 +1,60 @@
 //Screen para editar el perfil del usuario
 
-import 'package:chat_app/chats.dart';
+import 'dart:io';
+
+import 'package:chat_app/models/user.dart';
+import 'package:chat_app/repository/hiverepository.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileEditScreen extends StatefulWidget {
-  const ProfileEditScreen({super.key, required this.userId});
+  const ProfileEditScreen(
+      {super.key, required this.userId, this.firstTime = false});
 
   final String userId;
+
+  final bool firstTime;
 
   @override
   State<ProfileEditScreen> createState() => _ProfileEditScreenState();
 }
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
-  late User? user;
+  File? _image;
+
+  void _pickImage() async {
+    final pickedImage = await ImagePicker()
+        .pickImage(source: ImageSource.gallery, maxWidth: 200);
+
+    if (pickedImage == null) {
+      return;
+    }
+
+    setState(() {
+      _image = File(pickedImage.path);
+    });
+
+    //Subir la imagen a Firebase Storage, con la extension del archivo
+    final extension = _image!.path.split('.').last;
+    final storage = FirebaseStorage.instance
+        .ref()
+        .child('user_images')
+        .child('${widget.userId}.$extension');
+
+    await storage.putFile(_image!);
+
+    //Tambien vamos a actualizar el link de la imagen en la base de datos
+    //para que se muestre en la pantalla de perfil
+    //Obtener el link de la imagen
+    user?.imageUrl = await storage.getDownloadURL();
+  }
+
+  AppUser? user;
+
   @override
   void initState() {
-    //Obtener los datos del usuario
-    user = getUser(widget.userId);
+    user = HiveRepository().getUserById(widget.userId);
     super.initState();
   }
 
@@ -35,17 +72,25 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             ),
             CircleAvatar(
               //backgroundColor: Colors.grey,
-              backgroundImage: const AssetImage(
-                'assets/images/profile.png',
-              ),
-              foregroundImage: NetworkImage(user?.imageUrl ?? ''),
+              backgroundColor: Colors.grey,
+              foregroundImage: Image.network(
+                user!.imageUrl,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  }
+                  return const CircularProgressIndicator();
+                },
+              ).image,
 
               radius: 100,
             ),
             TextButton.icon(
                 icon: const Icon(Icons.camera),
                 label: const Text('Cambiar foto'),
-                onPressed: () {}),
+                onPressed: () {
+                  _pickImage();
+                }),
             //Nombre con icono para editar y cambiar que
             //abre un modalbotomsheet
             ListTile(
@@ -165,6 +210,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   ? 'No disponible'
                   : user?.phone ?? ''),
             ),
+            if (widget.firstTime)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, '/');
+                      },
+                      child: const Text('Continuar'),
+                    ),
+                  ),
+                ],
+              ),
           ],
         ));
   }

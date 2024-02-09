@@ -1,5 +1,6 @@
 //Widget para administrar las configuraciones de la aplicación
-import 'package:chat_app/chats.dart';
+
+import 'package:chat_app/models/user.dart';
 import 'package:chat_app/widgets/profilehero.dart';
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +35,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = getCurrentUser();
+    final AppUser user = AppUser(
+      id: '1',
+      name: 'asd',
+      email: '',
+      imageUrl: '',
+    );
 
     darkMode = EasyDynamicTheme.of(context).themeMode == ThemeMode.dark;
 
@@ -47,10 +53,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           ListTile(
             leading: Hero(
-              tag: 'user',
+              tag: user.id,
               child: CircleAvatar(
                 radius: 30,
-                backgroundImage: NetworkImage(user.imageUrl),
+                backgroundImage: NetworkImage(
+                  user.imageUrl,
+                ),
               ),
             ),
             title: Text(user.name),

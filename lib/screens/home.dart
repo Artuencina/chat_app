@@ -1,7 +1,10 @@
+import 'package:chat_app/cubits/chat/chatcubit.dart';
+import 'package:chat_app/dependency.dart';
 import 'package:chat_app/widgets/chattiles.dart';
 import 'package:chat_app/widgets/settings.dart';
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -48,15 +51,14 @@ class _HomeScreenState extends State<HomeScreen> {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.search_rounded,
-              size: 36,
-            ),
-            onPressed: () {
-              //showSearch(context: context, delegate: ChatSearch());
-            },
-          ),
+          index == 0
+              ? IconButton(
+                  onPressed: () {
+                    //Buscar chat
+                  },
+                  icon: const Icon(Icons.search_rounded),
+                )
+              : const SizedBox.shrink(),
         ],
       ),
       body: Container(
@@ -77,10 +79,13 @@ class _HomeScreenState extends State<HomeScreen> {
               index = i;
             });
           },
-          children: const [
-            Chats(),
-            Center(child: Text('Contactos')),
-            SettingsScreen(),
+          children: [
+            BlocProvider<ChatCubit>(
+              create: (context) => sl()..loadChats(),
+              child: const Chats(),
+            ),
+            const Center(child: Text('Contactos')),
+            const SettingsScreen(),
           ],
         ),
       ),
@@ -114,6 +119,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+      floatingActionButton: index == 0
+          ? FloatingActionButton(
+              onPressed: () {
+                //Abrir chat
+              },
+              child: const Icon(Icons.add_rounded),
+            )
+          : null,
     );
   }
 }

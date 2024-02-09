@@ -26,14 +26,9 @@ class _LoginFormState extends State<LoginForm> {
 
       //Utilizando Hive, vamos a guardar si el usuario marco el checkbox de recordar
       if (recordarme) {
-        print('Guardando datos');
-        var box = await Hive.box('settings');
+        var box = Hive.box('settings');
         box.put('email', email);
         box.put('password', password);
-
-        print('Datos guardados');
-        print(box.get('email'));
-        print(box.get('password'));
       } else {
         await Hive.openBox('settings').then((value) {
           value.delete('email');
@@ -44,10 +39,7 @@ class _LoginFormState extends State<LoginForm> {
       return true;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        print('Usuario no encontrado');
-      } else if (e.code == 'wrong-password') {
-        print('Contraseña incorrecta');
-      }
+      } else if (e.code == 'wrong-password') {}
       return false;
     }
   }
