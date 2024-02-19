@@ -96,4 +96,37 @@ class HiveRepository {
     final box = await Hive.openBox<Message>('messages');
     return box.values.where((m) => m.chat.user.id == chat.user.id).toList();
   }
+
+  //Metodo para guardar los contactos
+  Future<void> saveContacts(List<AppUser> contacts) async {
+    final box = await Hive.openBox<AppUser>('contacts');
+    await box.clear();
+    for (var contact in contacts) {
+      await box.put(contact.id, contact);
+    }
+  }
+
+  //Metodo para obtener los contactos
+  Future<List<AppUser>> getContacts() async {
+    final box = await Hive.openBox<AppUser>('contacts');
+    return box.values.toList();
+  }
+
+  //Metodo para obtener un contacto por su id
+  AppUser? getContactById(String id) {
+    final box = Hive.box('contacts');
+    return box.get(id);
+  }
+
+  //Metodo para eliminar un contacto
+  Future<void> deleteContact(AppUser contact) async {
+    final box = await Hive.openBox<AppUser>('contacts');
+    await box.delete(contact.id);
+  }
+
+  //Metodo para agregar un contacto
+  Future<void> addContact(AppUser contact) async {
+    final box = await Hive.openBox<AppUser>('contacts');
+    await box.put(contact.id, contact);
+  }
 }

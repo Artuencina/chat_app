@@ -1,4 +1,8 @@
+import 'package:chat_app/models/user.dart';
+import 'package:chat_app/repository/firestorerepository.dart';
 import 'package:chat_app/widgets/chattiles.dart';
+import 'package:chat_app/widgets/contacts.dart';
+import 'package:chat_app/widgets/contacttile.dart';
 import 'package:chat_app/widgets/settings.dart';
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +20,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int index = 0;
   List<String> titles = ['Chats', 'Contactos', 'Ajustes'];
+
+  final SearchController searchController = SearchController();
+  String query = '';
 
   @override
   void initState() {
@@ -48,14 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         actions: [
-          index == 0
-              ? IconButton(
-                  onPressed: () {
-                    //Buscar chat
-                  },
-                  icon: const Icon(Icons.search_rounded),
-                )
-              : const SizedBox.shrink(),
+          index < 2 ? const Icon(Icons.search) : const SizedBox.shrink(),
         ],
       ),
       body: Container(
@@ -78,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           children: const [
             Chats(),
-            Center(child: Text('Contactos')),
+            Contacts(),
             SettingsScreen(),
           ],
         ),
@@ -113,14 +113,36 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      floatingActionButton: index == 0
+      floatingActionButton: index < 2
           ? FloatingActionButton(
               onPressed: () {
                 //Abrir chat
               },
-              child: const Icon(Icons.add_rounded),
-            )
+              child: SearchAnchor(
+                searchController: searchController,
+                builder: (context, controller) {
+                  return IconButton(
+                    icon: const Icon(Icons.add_outlined),
+                    onPressed: () {
+                      controller.openView();
+                    },
+                  );
+                },
+                isFullScreen: true,
+                suggestionsBuilder: (context, controller) async {
+                  //Obtener los items de firestore
+                  query = controller.text;
+
+                  final List<AppUser> items =
+                      await FirestoreRepository().searchUsers(query);
+
+                  return List<ContactTile>.generate(items.length,
+                      (index) => ContactTile(contact: items[index]));
+                },
+              ))
           : null,
     );
   }
+
+  final searchanchors = [];
 }

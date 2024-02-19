@@ -53,7 +53,7 @@ class AppUser extends Equatable {
       info: map['info'],
       imageUrl: map['imageUrl'],
       phone: map['phone'],
-      imagePath: map['imagePath'],
+      imagePath: map['imagePath'] ?? '',
     );
   }
 

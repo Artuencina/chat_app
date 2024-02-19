@@ -1,6 +1,7 @@
 //Get_it para inyeccion de dependencias
 
 import 'package:chat_app/cubits/chat/chatcubit.dart';
+import 'package:chat_app/cubits/contacts/contactcubit.dart';
 import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:chat_app/repository/firestorerepository.dart';
 import 'package:chat_app/repository/hiverepository.dart';
@@ -25,6 +26,10 @@ Future<void> initializeDependencies() async {
 
   //Cubits
   sl.registerSingleton(ChatCubit(hiveRepository: sl()));
+  sl.registerSingleton(ContactsCubit(
+    hiveRepository: sl(),
+    firestoreRepository: sl(),
+  ));
   //sl.registerSingleton(MessageCubit(hiveRepository: sl()));
   sl.registerSingleton(
       UserCubit(hiveRepository: sl(), firestoreRepository: sl()));
