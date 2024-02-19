@@ -19,12 +19,15 @@ class _LoginFormState extends State<LoginForm> {
   final passwordController = TextEditingController();
 
   bool recordarme = false;
+  String userId = '';
 
   //Funciones de login
   Future<bool> _login(String email, String password) async {
     try {
-      await _firebase.signInWithEmailAndPassword(
+      final userCredential = await _firebase.signInWithEmailAndPassword(
           email: email, password: password);
+
+      userId = userCredential.user!.uid;
 
       //Utilizando Hive, vamos a guardar si el usuario marco el checkbox de recordar
       if (recordarme) {
@@ -40,6 +43,7 @@ class _LoginFormState extends State<LoginForm> {
 
       return true;
     } on FirebaseAuthException catch (e) {
+      userId = '';
       if (e.code == 'user-not-found') {
       } else if (e.code == 'wrong-password') {}
       return false;
@@ -135,8 +139,12 @@ class _LoginFormState extends State<LoginForm> {
                           .then((value) => {
                                 if (value)
                                   {
-                                    //TODO: obtener datos de usuario desde firebase
+                                    //Obtener el usuario y redirigir a la pantalla principal
+                                    context
+                                        .read<UserCubit>()
+                                        .getUserById(userId),
 
+                                    Navigator.of(context).pop(),
                                     Navigator.pushReplacementNamed(context, '/')
                                   }
                                 else

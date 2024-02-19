@@ -3,7 +3,6 @@
 import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:chat_app/cubits/user/userstate.dart';
-import 'package:chat_app/models/user.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -119,17 +118,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     ElevatedButton(
                                         onPressed: () {
                                           //Actualizar el nombre
-                                          final newUser = AppUser(
-                                              id: state.currentUser!.id,
-                                              name: controller.text,
-                                              email: state.currentUser!.email,
-                                              imageUrl:
-                                                  state.currentUser!.imageUrl,
-                                              info: state.currentUser!.info,
-                                              phone: state.currentUser!.phone);
-                                          context
-                                              .read<UserCubit>()
-                                              .updateUser(newUser);
+
+                                          context.read<UserCubit>().updateUser(
+                                              state.currentUser!.copyWith(
+                                                  name: controller.text));
                                           Navigator.pop(context);
                                         },
                                         child: const Text('Guardar')),
@@ -187,17 +179,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     ElevatedButton(
                                         onPressed: () {
                                           //Guardar la info
-                                          final newUser = AppUser(
-                                              id: state.currentUser!.id,
-                                              name: state.currentUser!.name,
-                                              email: state.currentUser!.email,
-                                              imageUrl:
-                                                  state.currentUser!.imageUrl,
-                                              info: controller.text,
-                                              phone: state.currentUser!.phone);
-                                          context
-                                              .read<UserCubit>()
-                                              .updateUser(newUser);
+                                          context.read<UserCubit>().updateUser(
+                                              state.currentUser!.copyWith(
+                                                  info: controller.text));
                                           Navigator.pop(context);
                                         },
                                         child: const Text('Guardar')),

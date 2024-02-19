@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:chat_app/models/user.dart';
+import 'package:chat_app/repository/firestorerepository.dart';
 import 'package:chat_app/repository/hiverepository.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,18 +13,31 @@ import 'userstate.dart';
 
 class UserCubit extends Cubit<UserState> {
   final HiveRepository hiveRepository;
+  final FirestoreRepository firestoreRepository;
 
-  UserCubit({required this.hiveRepository}) : super(UserInitial());
+  UserCubit({required this.hiveRepository, required this.firestoreRepository})
+      : super(UserInitial());
 
   //Metodo para obtener el usuario por el id
   Future<void> getUserById(String id) async {
+    //Dentro de un try intentamos obtener el usuario de firebase
+    //Se guarda en hive y se emite el estado UserReady
+    //Si hay un error, se emite el estado UserError
     try {
-      final user = hiveRepository.getUserById(id);
+      final user = await firestoreRepository.getUserById(id);
 
       if (user == null) {
+        //Borrar el usuario de Hive si no se encuentra en Firebase
+        final hiveUser = hiveRepository.getUserById(id);
+
+        if (hiveUser != null) {
+          await hiveRepository.deleteUser(hiveUser);
+        }
         emit(UserError(message: 'User not found'));
         return;
       }
+
+      await hiveRepository.saveUser(user);
       emit(UserReady(currentUser: user));
     } catch (e) {
       emit(UserError(message: e.toString()));
@@ -34,6 +48,7 @@ class UserCubit extends Cubit<UserState> {
   Future<void> updateUser(AppUser user) async {
     try {
       await hiveRepository.saveUser(user);
+      await firestoreRepository.addOrUpdateUser(user);
       emit(UserReady(currentUser: user));
     } catch (e) {
       emit(UserError(message: e.toString()));
@@ -58,20 +73,14 @@ class UserCubit extends Cubit<UserState> {
     final storage = FirebaseStorage.instance
         .ref()
         .child('user_images')
-        .child('${state.currentUser}.$extension');
+        .child('${state.currentUser!.id}.$extension');
 
     await storage.putFile(image);
 
     //Tambien vamos a actualizar el link de la imagen en la base de datos
     //para que se muestre en la pantalla de perfil
     //Obtener el link de la imagen
-    final AppUser newUser = AppUser(
-        id: state.currentUser!.id,
-        email: state.currentUser!.email,
-        phone: state.currentUser!.phone,
-        imageUrl: await storage.getDownloadURL(),
-        name: state.currentUser!.name);
-
-    await updateUser(newUser);
+    await updateUser(
+        state.currentUser!.copyWith(imageUrl: await storage.getDownloadURL()));
   }
 }

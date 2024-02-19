@@ -47,6 +47,8 @@ void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   Routes.configureRoutes();
 
   await initializeDependencies();
@@ -58,8 +60,6 @@ void main() async {
   final password = box.get('password');
 
   bool darkthemeMode = box.get('themeMode', defaultValue: false);
-
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   initialRoute = await autoLogin(email, password);
 
@@ -113,7 +113,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        initialRoute: initialRoute,
+        initialRoute: '/login',
         theme: theme,
         darkTheme: darkTheme,
         themeMode: EasyDynamicTheme.of(context).themeMode,

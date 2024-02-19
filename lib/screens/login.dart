@@ -6,7 +6,6 @@ import 'package:chat_app/repository/hiverepository.dart';
 import 'package:chat_app/widgets/cardform.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -342,7 +341,7 @@ class _RegisterDialogState extends State<RegisterDialog> {
                                   phone: phoneController.text,
                                   imageUrl: '');
 
-                              //Guardar el usuario en Hive
+                              //Guardar el usuario
                               context.read<UserCubit>().updateUser(user);
 
                               //Iniciar sesion
