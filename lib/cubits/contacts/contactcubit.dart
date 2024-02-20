@@ -43,7 +43,7 @@ class ContactsCubit extends Cubit<ContactState> {
       final contacts = await hiveRepository.getContacts();
 
       if (contacts.isEmpty) {
-        emit(const ContactError(message: 'No contacts found', contacts: []));
+        emit(const ContactError(message: 'No hay contactos', contacts: []));
         return;
       }
 
@@ -58,8 +58,30 @@ class ContactsCubit extends Cubit<ContactState> {
     try {
       await firestoreRepository.addContact(userId, user);
 
+      await hiveRepository.addContact(user);
+
       final contacts = [...state.contacts, user];
       contacts.sort((a, b) => a.name.compareTo(b.name));
+
+      emit(ContactReady(contacts: contacts));
+    } catch (e) {
+      emit(ContactError(message: e.toString(), contacts: state.contacts));
+    }
+  }
+
+  //Eliminar contacto
+  Future<void> deleteContact(String userId, AppUser user) async {
+    try {
+      await firestoreRepository.deleteContact(userId, user.id);
+
+      await hiveRepository.deleteContact(user);
+
+      final contacts = state.contacts.where((e) => e.id != user.id).toList();
+
+      if (contacts.isEmpty) {
+        emit(ContactError(message: 'No hay contactos', contacts: contacts));
+        return;
+      }
 
       emit(ContactReady(contacts: contacts));
     } catch (e) {

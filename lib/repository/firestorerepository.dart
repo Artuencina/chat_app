@@ -1,6 +1,7 @@
 //Repositorio para Firestore
 
 import 'package:chat_app/models/user.dart';
+import 'package:chat_app/repository/hiverepository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreRepository {
@@ -66,13 +67,31 @@ class FirestoreRepository {
   }
 
   //Buscar 10 usuarios que coincidan con el nombre
-  Future<List<AppUser>> searchUsers(String name) async {
+  //Quitar de los usuarios encontrados al usuario con el id userId
+  //Si el nombre esta vacio o tiene menos de 3 caracteres, no buscar
+  Future<List<AppUser>> searchUsers(String name, String userId) async {
+    if (name.isEmpty || name.length < 3) {
+      return [];
+    }
+
     final users = await _firestore
         .collection('users')
         .where('name', isGreaterThanOrEqualTo: name)
-        .where('name', isLessThan: '${name}z')
-        .limit(10)
+        .where('name', isLessThanOrEqualTo: '${name}z')
+        .limit(25)
         .get();
-    return users.docs.map((e) => AppUser.fromMap(e.data())).toList();
+
+    final appUsers = users.docs.map((e) => AppUser.fromMap(e.data())).toList();
+
+    appUsers.removeWhere((element) => element.id == userId);
+
+    //Obtenemos los contactos locales para no mostrarlos
+    final localContacts = await HiveRepository().getContacts();
+
+    for (var contact in localContacts) {
+      appUsers.removeWhere((element) => element.id == contact.id);
+    }
+
+    return appUsers;
   }
 }

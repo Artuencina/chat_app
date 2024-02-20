@@ -1,10 +1,12 @@
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/repository/firestorerepository.dart';
+import 'package:chat_app/repository/hiverepository.dart';
 import 'package:chat_app/widgets/chattiles.dart';
 import 'package:chat_app/widgets/contacts.dart';
 import 'package:chat_app/widgets/contacttile.dart';
 import 'package:chat_app/widgets/settings.dart';
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
@@ -39,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _pageController.dispose();
+    searchController.dispose();
     super.dispose();
   }
 
@@ -55,7 +58,12 @@ class _HomeScreenState extends State<HomeScreen> {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         actions: [
-          index < 2 ? const Icon(Icons.search) : const SizedBox.shrink(),
+          index < 2
+              ? IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {},
+                )
+              : const SizedBox.shrink(),
         ],
       ),
       body: Container(
@@ -125,19 +133,51 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: const Icon(Icons.add_outlined),
                     onPressed: () {
                       controller.openView();
+                      controller.clear();
                     },
                   );
                 },
+                viewHintText: 'Buscar usuario',
                 isFullScreen: true,
                 suggestionsBuilder: (context, controller) async {
                   //Obtener los items de firestore
                   query = controller.text;
 
-                  final List<AppUser> items =
-                      await FirestoreRepository().searchUsers(query);
+                  final userId = FirebaseAuth.instance.currentUser!.uid;
 
-                  return List<ContactTile>.generate(items.length,
-                      (index) => ContactTile(contact: items[index]));
+                  if (index == 0) {
+                    final List<AppUser> items =
+                        await HiveRepository().searchContacts(query);
+
+                    return List<ListTile>.generate(
+                      items.length,
+                      (index) => ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: Image.network(
+                            items[index].imageUrl,
+                          ).image,
+                        ),
+                        title: Text(items[index].name),
+                        subtitle: Text(items[index].info),
+                        onTap: () {
+                          //Abrir chat
+                        },
+                      ),
+                    );
+                  }
+
+                  final List<AppUser> items =
+                      await FirestoreRepository().searchUsers(
+                    query,
+                    userId,
+                  );
+
+                  return List<ContactTile>.generate(
+                      items.length,
+                      (index) => ContactTile(
+                            contact: items[index],
+                            isContact: false,
+                          ));
                 },
               ))
           : null,

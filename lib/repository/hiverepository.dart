@@ -73,12 +73,6 @@ class HiveRepository {
     await box.delete(user.id);
   }
 
-  //Metodo para obtener todos los usuarios
-  Future<List<AppUser>> getUsers() async {
-    final box = await Hive.openBox<AppUser>('users');
-    return box.values.toList();
-  }
-
   //Metodo para obtener un usuario por su id
   AppUser? getUserById(String id) {
     final box = Hive.box('users');
@@ -110,6 +104,14 @@ class HiveRepository {
   Future<List<AppUser>> getContacts() async {
     final box = await Hive.openBox<AppUser>('contacts');
     return box.values.toList();
+  }
+
+  //Metodo para buscar contactos por su nombre
+  Future<List<AppUser>> searchContacts(String query) async {
+    final box = await Hive.openBox<AppUser>('contacts');
+    return box.values
+        .where((c) => c.name.toLowerCase().contains(query.toLowerCase()))
+        .toList();
   }
 
   //Metodo para obtener un contacto por su id
