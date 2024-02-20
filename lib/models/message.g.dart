@@ -17,22 +17,28 @@ class MessageAdapter extends TypeAdapter<Message> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Message(
-      chat: fields[0] as Chat,
+      chatId: fields[0] as String,
       text: fields[1] as String,
       time: fields[2] as DateTime,
+      senderId: fields[4] as String,
+      status: fields[3] as MessageStatus,
     );
   }
 
   @override
   void write(BinaryWriter writer, Message obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(5)
       ..writeByte(0)
-      ..write(obj.chat)
+      ..write(obj.chatId)
       ..writeByte(1)
       ..write(obj.text)
       ..writeByte(2)
-      ..write(obj.time);
+      ..write(obj.time)
+      ..writeByte(3)
+      ..write(obj.status)
+      ..writeByte(4)
+      ..write(obj.senderId);
   }
 
   @override

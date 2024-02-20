@@ -18,11 +18,12 @@ class ChatAdapter extends TypeAdapter<Chat> {
     };
     return Chat(
       id: fields[0] as String,
-      user: fields[1] as AppUser,
+      userId: fields[1] as String,
       lastMessage: fields[3] as String,
-      otherUser: fields[2] as AppUser,
+      otherUserId: fields[2] as String,
       lastMessageTime: fields[4] as DateTime?,
-    )..unreadMessages = fields[5] as int;
+      unreadMessages: fields[5] as int,
+    );
   }
 
   @override
@@ -32,9 +33,9 @@ class ChatAdapter extends TypeAdapter<Chat> {
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.user)
+      ..write(obj.userId)
       ..writeByte(2)
-      ..write(obj.otherUser)
+      ..write(obj.otherUserId)
       ..writeByte(3)
       ..write(obj.lastMessage)
       ..writeByte(4)

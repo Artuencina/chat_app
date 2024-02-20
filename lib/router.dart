@@ -19,6 +19,7 @@ class Routes {
         ));
 
     router.define('/chat/:id',
+        transitionType: TransitionType.inFromRight,
         handler: Handler(
           handlerFunc: (context, parameters) => ChatScreen(
             chatId: parameters['id']![0],

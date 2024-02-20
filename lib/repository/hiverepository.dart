@@ -4,6 +4,7 @@
 import 'package:chat_app/models/chat.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/models/user.dart';
+import 'package:chat_app/repository/firestorerepository.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class HiveRepository {
@@ -17,7 +18,7 @@ class HiveRepository {
   //Metodo para guardar un chat
   Future<void> saveChat(Chat chat) async {
     final box = await Hive.openBox<Chat>('chats');
-    await box.put(chat.otherUser.id, chat);
+    await box.put(chat.otherUserId, chat);
   }
 
   //Guardar datos de inicio de sesion en el box settings
@@ -30,7 +31,7 @@ class HiveRepository {
   //Metodo para actualizar un chat en la lista y moverlo al inicio
   Future<void> updateChat(Chat chat) async {
     final box = await Hive.openBox<Chat>('chats');
-    await box.put(chat.otherUser.id, chat);
+    await box.put(chat.otherUserId, chat);
 
     //Mover el chat al inicio de la lista
     final chats = await getChats();
@@ -76,7 +77,22 @@ class HiveRepository {
   //Metodo para obtener un usuario por su id
   AppUser? getUserById(String id) {
     final box = Hive.box('users');
-    return box.get(id);
+
+    AppUser? user = box.get(id);
+
+    //Si user es null, intentar buscar en firestore y guardarlo en el box
+    if (user == null) {
+      FirestoreRepository().getUserById(id).then((value) {
+        if (value != null) {
+          user = value;
+          saveUser(value);
+        } else {
+          return null;
+        }
+      });
+    }
+
+    return user;
   }
 
   //Metodo para guardar un mensaje
@@ -85,10 +101,22 @@ class HiveRepository {
     await box.add(message);
   }
 
-  //Metodo para obtener todos los mensajes de un chat
-  Future<List<Message>> getMessages(Chat chat) async {
+  //Guardar mensajes de un chat
+  //Este metodo sirve para recibir los mensajes de firestore y guardarlos en el box
+  //Solamente si los mensajes no estan ya guardados
+  Future<void> saveMessages(String chatId, List<Message> messages) async {
     final box = await Hive.openBox<Message>('messages');
-    return box.values.where((m) => m.chat.user.id == chat.user.id).toList();
+    for (var message in messages) {
+      if (box.values.where((m) => m.id == message.id).isEmpty) {
+        await box.add(message);
+      }
+    }
+  }
+
+  //Metodo para obtener todos los mensajes de un chat
+  Future<List<Message>> getMessages(String chatId) async {
+    final box = await Hive.openBox<Message>('messages');
+    return box.values.where((m) => m.chatId == chatId).toList();
   }
 
   //Metodo para guardar los contactos

@@ -21,6 +21,7 @@ class AppUserAdapter extends TypeAdapter<AppUser> {
       name: fields[1] as String,
       email: fields[2] as String,
       imageUrl: fields[4] as String,
+      imagePath: fields[6] as String,
       info: fields[3] as String,
       phone: fields[5] as String,
     );
@@ -29,7 +30,7 @@ class AppUserAdapter extends TypeAdapter<AppUser> {
   @override
   void write(BinaryWriter writer, AppUser obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class AppUserAdapter extends TypeAdapter<AppUser> {
       ..writeByte(4)
       ..write(obj.imageUrl)
       ..writeByte(5)
-      ..write(obj.phone);
+      ..write(obj.phone)
+      ..writeByte(6)
+      ..write(obj.imagePath);
   }
 
   @override

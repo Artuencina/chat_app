@@ -3,6 +3,8 @@
 import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/cubits/chat/chatstate.dart';
 import 'package:chat_app/models/chat.dart';
+import 'package:chat_app/models/user.dart';
+import 'package:chat_app/repository/hiverepository.dart';
 import 'package:chat_app/widgets/profilemini.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,14 +30,19 @@ class Chats extends StatelessWidget {
             itemCount: state.chats.length,
             itemBuilder: (context, index) {
               final Chat chat = state.chats[index];
+
+              final AppUser? user = HiveRepository().getUserById(chat.userId);
+              final AppUser? otherUser =
+                  HiveRepository().getUserById(chat.otherUserId);
+
               return Column(
                 children: [
                   ListTile(
                     leading: ProfileThumbnail(
-                      user: chat.otherUser,
+                      user: user!,
                     ),
                     title: Text(
-                      chat.otherUser.name,
+                      otherUser!.name,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     subtitle: Text(

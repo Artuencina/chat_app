@@ -2,7 +2,7 @@
 
 // ignore_for_file: must_be_immutable
 
-import 'package:chat_app/models/user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -13,9 +13,9 @@ class Chat extends Equatable {
   @HiveField(0)
   final String id;
   @HiveField(1)
-  final AppUser user;
+  final String userId;
   @HiveField(2)
-  final AppUser otherUser;
+  final String otherUserId;
   @HiveField(3)
   String lastMessage;
   @HiveField(4)
@@ -25,12 +25,37 @@ class Chat extends Equatable {
 
   Chat(
       {required this.id,
-      required this.user,
+      required this.userId,
       required this.lastMessage,
-      required this.otherUser,
-      this.lastMessageTime});
+      required this.otherUserId,
+      this.lastMessageTime,
+      this.unreadMessages = 0});
 
   @override
   List<Object?> get props =>
-      [id, user, lastMessage, otherUser, lastMessageTime, unreadMessages];
+      [id, userId, lastMessage, otherUserId, lastMessageTime, unreadMessages];
+
+  //Mapear de un mapa a un chat
+  factory Chat.fromMap(Map<String, dynamic> map) {
+    return Chat(
+      id: map['id'],
+      userId: map['userId'],
+      otherUserId: map['otherUserId'],
+      lastMessage: map['lastMessage'],
+      lastMessageTime: (map['lastMessageTime'] as Timestamp).toDate(),
+      unreadMessages: map['unreadMessages'],
+    );
+  }
+
+  //Mapear de un chat a un mapa
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'userId': userId,
+      'otherUserId': otherUserId,
+      'lastMessage': lastMessage,
+      'lastMessageTime': lastMessageTime,
+      'unreadMessages': unreadMessages,
+    };
+  }
 }
