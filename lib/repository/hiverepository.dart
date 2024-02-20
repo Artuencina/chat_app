@@ -15,6 +15,17 @@ class HiveRepository {
     Hive.registerAdapter(AppUserAdapter());
   }
 
+  //DEBUG
+  //Metodo para borrar todos los datos de Hive
+  Future<void> deleteAllData() async {
+    //Abrir las cajas y borrarlas
+    await Hive.deleteBoxFromDisk('settings');
+    await Hive.deleteBoxFromDisk('chats');
+    await Hive.deleteBoxFromDisk('messages');
+    await Hive.deleteBoxFromDisk('users');
+    await Hive.deleteBoxFromDisk('contacts');
+  }
+
   //Metodo para guardar un chat
   Future<void> saveChat(Chat chat) async {
     final box = await Hive.openBox<Chat>('chats');
@@ -50,6 +61,12 @@ class HiveRepository {
     final box = await Hive.openBox<Chat>('chats');
 
     return box.get(id);
+  }
+
+  //Obtener chat a partir de un id
+  Chat? getChatById(String id) {
+    final box = Hive.box('chats');
+    return box.values.firstWhere((c) => c.id == id);
   }
 
   //Metodo para guardar un usuario

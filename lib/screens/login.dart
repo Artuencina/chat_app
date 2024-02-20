@@ -339,7 +339,8 @@ class _RegisterDialogState extends State<RegisterDialog> {
                                   email: emailController.text,
                                   name: emailController.text.split('@')[0],
                                   phone: phoneController.text,
-                                  imageUrl: '');
+                                  imageUrl:
+                                      'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png');
 
                               //Guardar el usuario
                               context.read<UserCubit>().updateUser(user);

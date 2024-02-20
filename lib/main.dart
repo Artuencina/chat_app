@@ -54,13 +54,17 @@ void main() async {
 
   await initializeDependencies();
 
+  //DEBUG: Borrar todos los datos de Hive
+  //await HiveRepository().deleteAllData();
+
   var box = await Hive.openBox('settings');
-  await Hive.openBox('users');
 
   final email = box.get('email');
   final password = box.get('password');
 
   bool darkthemeMode = box.get('themeMode', defaultValue: false);
+
+  await Hive.openBox('users');
 
   initialRoute = await autoLogin(email, password);
 

@@ -44,6 +44,11 @@ class UserCubit extends Cubit<UserState> {
     }
   }
 
+  //Quitar el usuario actual
+  void removeCurrentUser() {
+    emit(UserInitial());
+  }
+
   //Metodo para actualizar el usuario
   Future<void> updateUser(AppUser user) async {
     try {

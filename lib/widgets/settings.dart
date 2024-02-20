@@ -222,6 +222,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                             TextButton(
                               onPressed: () {
+                                context.read<UserCubit>().removeCurrentUser();
                                 //Cerrar sesión
                                 signOut();
                                 Navigator.pushReplacementNamed(

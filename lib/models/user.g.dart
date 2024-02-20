@@ -16,6 +16,7 @@ class AppUserAdapter extends TypeAdapter<AppUser> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
+    print(fields);
     return AppUser(
       id: fields[0] as String,
       name: fields[1] as String,

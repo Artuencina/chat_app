@@ -132,8 +132,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   return IconButton(
                     icon: const Icon(Icons.add_outlined),
                     onPressed: () {
-                      controller.openView();
                       controller.clear();
+                      controller.openView();
                     },
                   );
                 },

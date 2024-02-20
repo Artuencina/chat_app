@@ -5,7 +5,7 @@ import 'package:chat_app/repository/firestorerepository.dart';
 import 'package:chat_app/repository/hiverepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MessageCubit extends Cubit {
+class MessageCubit extends Cubit<MessageState> {
   final HiveRepository hiveRepository;
   final FirestoreRepository firestoreRepository;
 
