@@ -113,7 +113,7 @@ class MyApp extends StatelessWidget {
               sl()..setUserById(FirebaseAuth.instance.currentUser!.uid),
         ),
         BlocProvider<ChatCubit>(
-          create: (context) => sl()..loadChats(),
+          create: (context) => sl(),
         ),
         BlocProvider<ContactsCubit>(create: (context) => sl()..getContacts()),
         BlocProvider<MessageCubit>(

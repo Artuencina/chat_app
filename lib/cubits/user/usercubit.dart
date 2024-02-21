@@ -26,7 +26,7 @@ class UserCubit extends Cubit<UserState> {
     try {
       //Si el box de usuarios no esta abierto, lo abrimos
       await hiveRepository.openBox('users');
-      await hiveRepository.openBox('chats');
+      //await hiveRepository.openBox('chats');
 
       final user = await firestoreRepository.getUserById(id);
 

@@ -80,11 +80,13 @@ class Chats extends StatelessWidget {
               return Column(
                 children: [
                   ListTile(
-                    leading: ProfileThumbnail(
-                      user: otherUser!,
-                    ),
+                    leading: otherUser == null
+                        ? const Icon(Icons.person)
+                        : ProfileThumbnail(
+                            user: otherUser,
+                          ),
                     title: Text(
-                      otherUser.name,
+                      otherUser == null ? '' : otherUser.name,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     subtitle: Text(

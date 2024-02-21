@@ -23,6 +23,8 @@ class HiveRepository {
     await Hive.deleteBoxFromDisk('messages');
     await Hive.deleteBoxFromDisk('users');
     await Hive.deleteBoxFromDisk('contacts');
+
+    await Hive.close();
   }
 
   //Metodo para guardar un chat

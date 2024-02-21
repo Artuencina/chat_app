@@ -1,6 +1,4 @@
 //Screen para editar el perfil del usuario
-
-import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:chat_app/cubits/user/userstate.dart';
 
@@ -213,7 +211,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       padding: const EdgeInsets.all(8.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          context.read<ChatCubit>().loadChats();
                           Navigator.pushReplacementNamed(context, '/');
                         },
                         child: const Text('Continuar'),

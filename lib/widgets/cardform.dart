@@ -1,4 +1,3 @@
-import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -121,6 +120,8 @@ class _LoginFormState extends State<LoginForm> {
                     setState(() {
                       recordarme = value!;
                     });
+                    //Cerrar el teclado si esta abierto
+                    FocusScope.of(context).unfocus();
                   },
                   title: const Text(
                     'Recordarme',
@@ -148,9 +149,6 @@ class _LoginFormState extends State<LoginForm> {
                                         .read<UserCubit>()
                                         .setUserById(userId)
                                         .then((value) async => {
-                                              await context
-                                                  .read<ChatCubit>()
-                                                  .loadChats(),
                                               if (context.mounted)
                                                 {
                                                   Navigator.of(context).pop(),

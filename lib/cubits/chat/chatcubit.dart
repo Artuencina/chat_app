@@ -22,6 +22,18 @@ class ChatCubit extends Cubit<ChatsState> {
     if (localChats.isEmpty) {
       emit(const ChatsEmpty(chats: []));
     } else {
+      //Antes de emitir el estado, vamos a obtener los usuarios de los chats
+      //Para evitar errores de usuario no encontrado
+      for (var chat in localChats) {
+        //Preguntamos si el usuario existe dentro de hive, si no, lo traemos
+        final user = hiveRepository.getUserById(chat.otherUserId);
+        if (user == null) {
+          final user = await firestoreRepository.getUserById(chat.otherUserId);
+          if (user != null) {
+            await hiveRepository.saveUser(user);
+          }
+        }
+      }
       emit(ChatsLoading(chats: localChats));
     }
 

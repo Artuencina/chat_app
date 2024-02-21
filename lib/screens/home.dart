@@ -32,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
+    context.read<ChatCubit>().loadChats();
     _pageController.addListener(() {
       setState(() {
         index = _pageController.page!.round();
