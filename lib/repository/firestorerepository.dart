@@ -5,6 +5,7 @@ import 'package:chat_app/models/message.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/repository/hiverepository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:uuid/uuid.dart';
 
 class FirestoreRepository {
   final _firestore = FirebaseFirestore.instance;
@@ -100,23 +101,34 @@ class FirestoreRepository {
   //---------Chats
 
   //Crear un chat con un usuario
-  Future<void> createChat(String userId, String contactId) async {
+  Future<void> createChat(Chat newChat) async {
+    final userId = newChat.userId;
+    final contactId = newChat.otherUserId;
+
     //Si el chat ya existe, no hacer nada
     if (await getChatId(userId, contactId) != null) return;
 
-    final chatId = _firestore.collection('chats').doc().id;
-
-    final Chat chat = Chat(
-      id: chatId,
-      userId: userId,
-      otherUserId: contactId,
-      lastMessage: '',
-      lastMessageTime: null,
-      unreadMessages: 0,
+    final otherId = const Uuid().v4();
+    final Chat otherChat = newChat.copyWith(
+      id: otherId,
+      userId: contactId,
+      otherUserId: userId,
     );
 
     //Guardar chat en la coleccion de chats
-    await _firestore.collection('chats').doc(chatId).set(chat.toMap());
+    await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('chats')
+        .doc(newChat.id)
+        .set(newChat.toMap());
+
+    await _firestore
+        .collection('users')
+        .doc(contactId)
+        .collection('chats')
+        .doc(otherChat.id)
+        .set(otherChat.toMap());
 
     //Tambien guardamos el id del chat en la coleccion de usuarios
     //Y el id del chat en la coleccion de contactos
@@ -125,14 +137,15 @@ class FirestoreRepository {
         .doc(userId)
         .collection('contacts')
         .doc(contactId)
-        .set({'chatId': chatId});
+        .set({'chatId': newChat.id});
   }
 
   //Obtener los chats de un usuario
   Future<List<Chat>> getChats(String userId) async {
     final chats = await _firestore
+        .collection('users')
+        .doc(userId)
         .collection('chats')
-        .where('userId', isEqualTo: userId)
         .get();
 
     return chats.docs.map((e) => Chat.fromMap(e.data())).toList();
@@ -153,14 +166,19 @@ class FirestoreRepository {
   }
 
   //Obtener el chat a partir de un Id
-  Future<Chat?> getChatById(String chat) async {
-    final chatData = await _firestore.collection('chats').doc(chat).get();
+  Future<Chat?> getChatById(String userId, String chat) async {
+    final chatData = await _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('chats')
+        .doc(chat)
+        .get();
     return Chat.fromMap(chatData.data()!);
   }
 
   //Eliminar un chat
-  Future<void> deleteChat(String chatId) async {
-    final chat = await getChatById(chatId);
+  Future<void> deleteChat(String userId, String chatId) async {
+    final chat = await getChatById(userId, chatId);
     await _firestore.collection('chats').doc(chatId).delete();
 
     //Borrar tambien el registro en la coleccion de contactos del usuario
@@ -175,18 +193,27 @@ class FirestoreRepository {
   //Actualizar el ultimo mensaje de un chat
   Future<void> updateChatLastMessage(Message message) {
     final chatId = message.chatId;
+    final userId = message.senderId;
 
-    return _firestore.collection('chats').doc(chatId).update({
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('chats')
+        .doc(chatId)
+        .update({
       'lastMessage': message.text,
       'lastMessageTime': message.time,
+      'unreadMessages': FieldValue.increment(1),
     });
   }
 
   //---------Mensajes
 
   //Obtener los mensajes de un chat
-  Future<List<Message>> getMessages(String chatId) async {
+  Future<List<Message>> getMessages(String userId, String chatId) async {
     final messages = await _firestore
+        .collection('users')
+        .doc(userId)
         .collection('chats')
         .doc(chatId)
         .collection('messages')
@@ -200,6 +227,8 @@ class FirestoreRepository {
   //Agregar un mensaje a un chat
   Future<void> addMessage(Message message) async {
     await _firestore
+        .collection('users')
+        .doc(message.senderId)
         .collection('chats')
         .doc(message.chatId)
         .collection('messages')

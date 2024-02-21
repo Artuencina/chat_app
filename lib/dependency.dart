@@ -25,7 +25,10 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton(firestoreRepository);
 
   //Cubits
-  sl.registerSingleton(ChatCubit(hiveRepository: sl()));
+  sl.registerSingleton(ChatCubit(
+    hiveRepository: sl(),
+    firestoreRepository: sl(),
+  ));
   sl.registerSingleton(ContactsCubit(
     hiveRepository: sl(),
     firestoreRepository: sl(),

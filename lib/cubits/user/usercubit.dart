@@ -45,7 +45,8 @@ class UserCubit extends Cubit<UserState> {
   }
 
   //Quitar el usuario actual
-  void removeCurrentUser() {
+  void removeCurrentUser() async {
+    await hiveRepository.removeCurrentUser();
     emit(UserInitial());
   }
 
@@ -53,6 +54,7 @@ class UserCubit extends Cubit<UserState> {
   Future<void> updateUser(AppUser user) async {
     try {
       await hiveRepository.saveUser(user);
+      await hiveRepository.setCurrentUser(user.id);
       await firestoreRepository.addOrUpdateUser(user);
       emit(UserReady(currentUser: user));
     } catch (e) {

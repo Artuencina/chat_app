@@ -80,6 +80,34 @@ class HiveRepository {
     await box.put(user.id, user);
   }
 
+  //Establecer usuario actual (solo id)
+  Future<void> setCurrentUser(String id) async {
+    var box = await Hive.openBox('settings');
+    await box.put('currentUser', id);
+  }
+
+  //Eliminar el usuario actual
+  Future<void> removeCurrentUser() async {
+    var box = await Hive.openBox('settings');
+    await box.delete('currentUser');
+  }
+
+  //Obtener usuario actual
+  Future<AppUser?> getCurrentUser() async {
+    var box = await Hive.openBox('settings');
+    final id = box.get('currentUser');
+    if (id == null) {
+      return null;
+    }
+    return getUserById(id);
+  }
+
+  //Obtener id del usuario actual
+  Future<String?> getCurrentUserId() async {
+    var box = await Hive.openBox('settings');
+    return box.get('currentUser');
+  }
+
   //Meotodo para eliminar un usuario
   Future<void> deleteUser(AppUser user) async {
     if (Hive.isBoxOpen('users') == true) {

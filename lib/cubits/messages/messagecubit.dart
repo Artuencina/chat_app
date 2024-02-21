@@ -22,9 +22,15 @@ class MessageCubit extends Cubit<MessageState> {
     final messages = await hiveRepository.getMessages(chatId);
     emit(MessagesLoading(messages: messages));
 
+    final currentUser = await hiveRepository.getCurrentUserId();
+    if (currentUser == null) {
+      emit(MessagesError(messages: messages));
+      return;
+    }
     //Luego se obtienen los mensajes de Firestore y actualiza tanto el estado
     //Como el box de Hive
-    final newMessages = await firestoreRepository.getMessages(chatId);
+    final newMessages =
+        await firestoreRepository.getMessages(currentUser, chatId);
     emit(MessagesLoaded(messages: newMessages));
     await hiveRepository.saveMessages(chatId, newMessages);
   }

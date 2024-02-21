@@ -3,6 +3,7 @@ import 'package:chat_app/cubits/contacts/contactcubit.dart';
 import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:chat_app/dependency.dart';
 import 'package:chat_app/firebase_options.dart';
+import 'package:chat_app/repository/hiverepository.dart';
 import 'package:chat_app/router.dart';
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';

@@ -21,9 +21,50 @@ class Chats extends StatelessWidget {
 
     return BlocBuilder<ChatCubit, ChatsState>(
       builder: (context, state) {
+        //Loading muestra los chats locales y un icono arriba
+        //indicandoq ue esta cargando los chats de firebase
         if (state is ChatsLoading) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return Column(
+            children: [
+              const LinearProgressIndicator(),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: state.chats.length,
+                  itemBuilder: (context, index) {
+                    final Chat chat = state.chats[index];
+                    final AppUser? otherUser =
+                        HiveRepository().getUserById(chat.otherUserId);
+                    return Column(
+                      children: [
+                        ListTile(
+                          leading: ProfileThumbnail(
+                            user: otherUser!,
+                          ),
+                          title: Text(
+                            otherUser.name,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          subtitle: Text(
+                            chat.lastMessage,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          trailing: Text(
+                            dateFormat.format(chat.lastMessageTime!),
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          onTap: () {
+                            //Abrir chat
+                          },
+                        ),
+                        const Divider(
+                          height: 0,
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         } else if (state is ChatsLoaded) {
           return ListView.builder(
@@ -67,6 +108,10 @@ class Chats extends StatelessWidget {
         } else if (state is ChatsEmpty) {
           return const Center(
             child: Text('No hay chats, empieza a chatear con tus amigos'),
+          );
+        } else if (state is ChatsInitial) {
+          return const Center(
+            child: CircularProgressIndicator(),
           );
         } else {
           return const Center(

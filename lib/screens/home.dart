@@ -1,3 +1,4 @@
+import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/repository/firestorerepository.dart';
 import 'package:chat_app/repository/hiverepository.dart';
@@ -6,8 +7,8 @@ import 'package:chat_app/widgets/contacts.dart';
 import 'package:chat_app/widgets/contacttile.dart';
 import 'package:chat_app/widgets/settings.dart';
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -123,9 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: index < 2
           ? FloatingActionButton(
-              onPressed: () {
-                //Abrir chat
-              },
+              onPressed: null,
               child: SearchAnchor(
                 searchController: searchController,
                 builder: (context, controller) {
@@ -143,7 +142,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   //Obtener los items de firestore
                   query = controller.text;
 
-                  final userId = FirebaseAuth.instance.currentUser!.uid;
+                  final userId = await HiveRepository().getCurrentUserId();
+
+                  if (userId == null) return List<ContactTile>.empty();
 
                   if (index == 0) {
                     final List<AppUser> items =
@@ -160,7 +161,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: Text(items[index].name),
                         subtitle: Text(items[index].info),
                         onTap: () {
-                          //Abrir chat
+                          //Crear chat
+                          controller.clear();
+                          context
+                              .read<ChatCubit>()
+                              .addChat(userId, items[index].id);
+                          //Cerrar el buscador
+                          controller.closeView(null);
+                          //TODO: Navegar directamente al chat
                         },
                       ),
                     );
@@ -183,6 +191,4 @@ class _HomeScreenState extends State<HomeScreen> {
           : null,
     );
   }
-
-  final searchanchors = [];
 }

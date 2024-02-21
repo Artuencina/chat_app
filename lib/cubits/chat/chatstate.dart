@@ -3,38 +3,45 @@
 import 'package:chat_app/models/chat.dart';
 import 'package:equatable/equatable.dart';
 
-abstract class ChatsState extends Equatable {}
+abstract class ChatsState extends Equatable {
+  final List<Chat> chats;
+  const ChatsState({required this.chats});
+}
 
 class ChatsInitial extends ChatsState {
-  @override
-  List<Object?> get props => [];
-}
-
-class ChatsLoading extends ChatsState {
-  @override
-  List<Object?> get props => [];
-}
-
-class ChatsLoaded extends ChatsState {
-  final List<Chat> chats;
-
-  ChatsLoaded({required this.chats});
+  const ChatsInitial({required List<Chat> chats}) : super(chats: chats);
 
   @override
   List<Object?> get props => [chats];
 }
 
-//Estado de chat vacio
-class ChatsEmpty extends ChatsState {
+class ChatsLoading extends ChatsState {
+  const ChatsLoading({required List<Chat> chats}) : super(chats: chats);
+
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [chats];
+}
+
+class ChatsLoaded extends ChatsState {
+  const ChatsLoaded({required List<Chat> chats}) : super(chats: chats);
+
+  @override
+  List<Object?> get props => [chats];
+}
+
+class ChatsEmpty extends ChatsState {
+  const ChatsEmpty({required List<Chat> chats}) : super(chats: chats);
+
+  @override
+  List<Object?> get props => [chats];
 }
 
 class ChatsError extends ChatsState {
   final String message;
 
-  ChatsError({required this.message});
+  const ChatsError({required this.message, required List<Chat> chats})
+      : super(chats: chats);
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, chats];
 }

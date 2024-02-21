@@ -31,6 +31,15 @@ class Chat extends Equatable {
       this.lastMessageTime,
       this.unreadMessages = 0});
 
+  Chat.empty({
+    this.id = '',
+    this.userId = '',
+    this.lastMessage = '',
+    this.otherUserId = '',
+    this.lastMessageTime,
+    this.unreadMessages = 0,
+  });
+
   @override
   List<Object?> get props =>
       [id, userId, lastMessage, otherUserId, lastMessageTime, unreadMessages];
@@ -57,5 +66,29 @@ class Chat extends Equatable {
       'lastMessageTime': lastMessageTime,
       'unreadMessages': unreadMessages,
     };
+  }
+
+  //Copywith
+  Chat copyWith({
+    String? id,
+    String? userId,
+    String? otherUserId,
+    String? lastMessage,
+    DateTime? lastMessageTime,
+    int? unreadMessages,
+  }) {
+    return Chat(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      otherUserId: otherUserId ?? this.otherUserId,
+      lastMessage: lastMessage ?? this.lastMessage,
+      lastMessageTime: lastMessageTime ?? this.lastMessageTime,
+      unreadMessages: unreadMessages ?? this.unreadMessages,
+    );
+  }
+
+  //Verificar si el chat es vacio (no tiene Id)
+  bool isEmpty() {
+    return id.isEmpty;
   }
 }
