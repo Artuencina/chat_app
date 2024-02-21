@@ -12,7 +12,7 @@ class MessageCubit extends Cubit<MessageState> {
   MessageCubit({
     required this.hiveRepository,
     required this.firestoreRepository,
-  }) : super(const MessagesLoading(
+  }) : super(const MessagesLoaded(
           messages: [],
         ));
 

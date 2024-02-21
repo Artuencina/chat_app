@@ -27,11 +27,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> signOut() async {
     //Eliminar los datos de inicio de sesión
-    await Hive.openBox('settings').then((value) {
-      value.delete('email');
-      value.delete('password');
-    });
-
     await _firebase.signOut();
   }
 
@@ -222,7 +217,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                             TextButton(
                               onPressed: () {
-                                context.read<UserCubit>().removeCurrentUser();
+                                context.read<UserCubit>().signOut();
                                 //Cerrar sesión
                                 signOut();
                                 Navigator.pushReplacementNamed(
@@ -244,8 +239,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           );
+        } else if (state is UserError) {
+          return Center(
+            child: Text(state.message),
+          );
         } else {
-          return const Center(child: Text('Error'));
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         }
       },
     );

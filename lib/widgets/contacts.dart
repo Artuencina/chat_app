@@ -19,8 +19,20 @@ class _ContactsState extends State<Contacts> {
     return BlocBuilder<ContactsCubit, ContactState>(
       builder: ((context, state) {
         if (state is ContactLoading) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return Column(
+            children: [
+              LinearProgressIndicator(
+                backgroundColor: Theme.of(context).primaryColor,
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: state.contacts.length,
+                  itemBuilder: (context, index) {
+                    return ContactTile(contact: state.contacts[index]);
+                  },
+                ),
+              ),
+            ],
           );
         }
 

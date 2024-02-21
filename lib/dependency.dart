@@ -2,6 +2,7 @@
 
 import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/cubits/contacts/contactcubit.dart';
+import 'package:chat_app/cubits/messages/messagecubit.dart';
 import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:chat_app/repository/firestorerepository.dart';
 import 'package:chat_app/repository/hiverepository.dart';
@@ -33,7 +34,8 @@ Future<void> initializeDependencies() async {
     hiveRepository: sl(),
     firestoreRepository: sl(),
   ));
-  //sl.registerSingleton(MessageCubit(hiveRepository: sl()));
+  sl.registerSingleton(
+      MessageCubit(hiveRepository: sl(), firestoreRepository: sl()));
   sl.registerSingleton(
       UserCubit(hiveRepository: sl(), firestoreRepository: sl()));
 }

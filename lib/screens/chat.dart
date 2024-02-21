@@ -3,6 +3,7 @@ import 'package:chat_app/cubits/messages/messagestate.dart';
 import 'package:chat_app/models/chat.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/repository/hiverepository.dart';
+import 'package:chat_app/widgets/newmessage.dart';
 import 'package:chat_app/widgets/profilemini.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,7 +41,15 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: ProfileThumbnail(user: otherUser!),
+        centerTitle: true,
+        title: otherUser == null ? const Text('Chat') : Text(otherUser!.name),
+        backgroundColor: Theme.of(context).primaryColor,
+        actions: [
+          ProfileThumbnail(user: otherUser!),
+          const SizedBox(
+            width: 15,
+          )
+        ],
       ),
       body: BlocBuilder<MessageCubit, MessageState>(
         builder: (context, state) {
@@ -49,13 +58,22 @@ class _ChatScreenState extends State<ChatScreen> {
             //Y mostrar algun icono de carga debajo
             return const Center(child: CircularProgressIndicator());
           } else if (state is MessagesLoaded) {
-            return ListView.builder(
-              itemCount: state.messages.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(state.messages[index].text),
-                );
-              },
+            return Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                //Abajo del todo hay un widget para enviar mensajes
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: state.messages.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(state.messages[index].text),
+                      );
+                    },
+                  ),
+                ),
+                const NewMessageField(),
+              ],
             );
           } else {
             return const Center(child: Text('Error'));

@@ -51,7 +51,9 @@ class Chat extends Equatable {
       userId: map['userId'],
       otherUserId: map['otherUserId'],
       lastMessage: map['lastMessage'],
-      lastMessageTime: (map['lastMessageTime'] as Timestamp).toDate(),
+      lastMessageTime: map['lastMessageTime'] == null
+          ? null
+          : (map['lastMessageTime'] as Timestamp).toDate(),
       unreadMessages: map['unreadMessages'],
     );
   }

@@ -28,7 +28,11 @@ class ChatCubit extends Cubit<ChatsState> {
     final currentUserId = await hiveRepository.getCurrentUserId();
 
     if (currentUserId == null) {
-      emit(ChatsLoaded(chats: localChats));
+      if (localChats.isEmpty) {
+        emit(const ChatsEmpty(chats: []));
+      } else {
+        emit(ChatsLoaded(chats: localChats));
+      }
       return;
     }
 
@@ -47,6 +51,13 @@ class ChatCubit extends Cubit<ChatsState> {
       //Si no hay chats en hive, guardamos los chats de firebase
       for (var chat in firebaseChats) {
         await hiveRepository.saveChat(chat);
+
+        //Tambien obtenemos el usuario del chat y lo guardamos en hive
+        final otherUser =
+            await firestoreRepository.getUserById(chat.otherUserId);
+        if (otherUser != null) {
+          await hiveRepository.saveUser(otherUser);
+        }
       }
     } else {
       //Si hay chats en hive, comparamos con los de firebase
@@ -56,6 +67,13 @@ class ChatCubit extends Cubit<ChatsState> {
         if (hiveChat.isEmpty()) {
           //Si el chat no existe en hive, lo guardamos
           await hiveRepository.saveChat(chat);
+
+          //Tambien obtenemos el usuario del chat y lo guardamos en hive
+          final otherUser =
+              await firestoreRepository.getUserById(chat.otherUserId);
+          if (otherUser != null) {
+            await hiveRepository.saveUser(otherUser);
+          }
         }
         //Si el chat existe en hive, comparamos el ultimo mensaje
         if (chat.lastMessage != hiveChat.lastMessage) {
@@ -79,7 +97,7 @@ class ChatCubit extends Cubit<ChatsState> {
     chat.unreadMessages++;
     await hiveRepository.updateChat(chat);
     await firestoreRepository.updateChatLastMessage(message);
-    emit(ChatsLoaded(chats: state.chats));
+    emit(ChatsLoaded(chats: await hiveRepository.getChats()));
   }
 
   //Agregar un chat
@@ -98,7 +116,8 @@ class ChatCubit extends Cubit<ChatsState> {
 
     //Agregar chat a hive
     await hiveRepository.saveChat(chat);
-    emit(ChatsLoaded(chats: state.chats));
+
+    emit(ChatsLoaded(chats: await hiveRepository.getChats()));
 
     //Agregar chat a firebase
     await firestoreRepository.createChat(chat);

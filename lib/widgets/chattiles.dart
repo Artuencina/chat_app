@@ -49,7 +49,9 @@ class Chats extends StatelessWidget {
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           trailing: Text(
-                            dateFormat.format(chat.lastMessageTime!),
+                            chat.lastMessageTime == null
+                                ? ''
+                                : dateFormat.format(chat.lastMessageTime!),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           onTap: () {
@@ -72,7 +74,6 @@ class Chats extends StatelessWidget {
             itemBuilder: (context, index) {
               final Chat chat = state.chats[index];
 
-              final AppUser? user = HiveRepository().getUserById(chat.userId);
               final AppUser? otherUser =
                   HiveRepository().getUserById(chat.otherUserId);
 
@@ -80,10 +81,10 @@ class Chats extends StatelessWidget {
                 children: [
                   ListTile(
                     leading: ProfileThumbnail(
-                      user: user!,
+                      user: otherUser!,
                     ),
                     title: Text(
-                      otherUser!.name,
+                      otherUser.name,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     subtitle: Text(
@@ -91,11 +92,15 @@ class Chats extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     trailing: Text(
-                      dateFormat.format(chat.lastMessageTime!),
+                      chat.lastMessageTime == null
+                          ? ''
+                          : dateFormat.format(chat.lastMessageTime!),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     onTap: () {
-                      //Abrir chat
+                      Navigator.of(context).pushNamed(
+                        '/chat/${chat.id}',
+                      );
                     },
                   ),
                   const Divider(

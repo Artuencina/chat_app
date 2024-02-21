@@ -1,3 +1,4 @@
+import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,9 @@ class _LoginFormState extends State<LoginForm> {
 
       //Utilizando Hive, vamos a guardar si el usuario marco el checkbox de recordar
       if (recordarme) {
+        if (!Hive.isBoxOpen('settings')) {
+          await Hive.openBox('settings');
+        }
         var box = Hive.box('settings');
         box.put('email', email);
         box.put('password', password);
@@ -142,10 +146,19 @@ class _LoginFormState extends State<LoginForm> {
                                     //Obtener el usuario y redirigir a la pantalla principal
                                     context
                                         .read<UserCubit>()
-                                        .getUserById(userId),
-
-                                    Navigator.of(context).pop(),
-                                    Navigator.pushReplacementNamed(context, '/')
+                                        .setUserById(userId)
+                                        .then((value) async => {
+                                              await context
+                                                  .read<ChatCubit>()
+                                                  .loadChats(),
+                                              if (context.mounted)
+                                                {
+                                                  Navigator.of(context).pop(),
+                                                  Navigator
+                                                      .pushReplacementNamed(
+                                                          context, '/'),
+                                                }
+                                            })
                                   }
                                 else
                                   {

@@ -4,7 +4,6 @@
 import 'package:chat_app/models/chat.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/models/user.dart';
-import 'package:chat_app/repository/firestorerepository.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class HiveRepository {
@@ -52,7 +51,10 @@ class HiveRepository {
 
   //Metodo para obtener todos los chats
   Future<List<Chat>> getChats() async {
-    final box = await Hive.openBox<Chat>('chats');
+    if (Hive.isBoxOpen('chats') == false) {
+      await Hive.openBox<Chat>('chats');
+    }
+    final box = Hive.box<Chat>('chats');
     return box.values.toList();
   }
 
@@ -65,8 +67,16 @@ class HiveRepository {
 
   //Obtener chat a partir de un id
   Chat? getChatById(String id) {
-    final box = Hive.box('chats');
-    return box.values.firstWhere((c) => c.id == id);
+    final box = Hive.box<Chat>('chats');
+    //Obtener el chat con el id
+    if (box.isEmpty) {
+      return null;
+    }
+
+    final chat = box.values
+        .firstWhere((element) => element.id == id, orElse: () => Chat.empty());
+
+    return chat;
   }
 
   //Metodo para guardar un usuario
@@ -119,24 +129,18 @@ class HiveRepository {
     await box.delete(user.id);
   }
 
+  //Verificar si el box que se pasa por parametro esta abierto, si no, lo abre
+  Future<void> openBox(String boxName) async {
+    if (!Hive.isBoxOpen(boxName)) {
+      await Hive.openBox(boxName);
+    }
+  }
+
   //Metodo para obtener un usuario por su id
   AppUser? getUserById(String id) {
     final box = Hive.box('users');
 
     AppUser? user = box.get(id);
-
-    //Si user es null, intentar buscar en firestore y guardarlo en el box
-    if (user == null) {
-      FirestoreRepository().getUserById(id).then((value) {
-        if (value != null) {
-          user = value;
-          saveUser(value);
-        } else {
-          return null;
-        }
-      });
-    }
-
     return user;
   }
 

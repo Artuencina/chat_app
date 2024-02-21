@@ -19,11 +19,15 @@ class UserCubit extends Cubit<UserState> {
       : super(UserInitial());
 
   //Metodo para obtener el usuario por el id
-  Future<void> getUserById(String id) async {
+  Future<void> setUserById(String id) async {
     //Dentro de un try intentamos obtener el usuario de firebase
     //Se guarda en hive y se emite el estado UserReady
     //Si hay un error, se emite el estado UserError
     try {
+      //Si el box de usuarios no esta abierto, lo abrimos
+      await hiveRepository.openBox('users');
+      await hiveRepository.openBox('chats');
+
       final user = await firestoreRepository.getUserById(id);
 
       if (user == null) {
@@ -38,6 +42,7 @@ class UserCubit extends Cubit<UserState> {
       }
 
       await hiveRepository.saveUser(user);
+      await hiveRepository.setCurrentUser(user.id);
       emit(UserReady(currentUser: user));
     } catch (e) {
       emit(UserError(message: e.toString()));
@@ -45,8 +50,8 @@ class UserCubit extends Cubit<UserState> {
   }
 
   //Quitar el usuario actual
-  void removeCurrentUser() async {
-    await hiveRepository.removeCurrentUser();
+  void signOut() async {
+    await hiveRepository.deleteAllData(); //Borrar todos los datos de Hive
     emit(UserInitial());
   }
 

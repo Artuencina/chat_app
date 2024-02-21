@@ -1,4 +1,5 @@
 import 'package:chat_app/cubits/chat/chatcubit.dart';
+import 'package:chat_app/cubits/contacts/contactcubit.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/repository/firestorerepository.dart';
 import 'package:chat_app/repository/hiverepository.dart';
@@ -130,9 +131,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 builder: (context, controller) {
                   return IconButton(
                     icon: const Icon(Icons.add_outlined),
-                    onPressed: () {
+                    onPressed: () async {
                       controller.clear();
                       controller.openView();
+                      await context.read<ContactsCubit>().getContacts();
                     },
                   );
                 },

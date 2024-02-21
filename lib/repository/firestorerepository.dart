@@ -41,12 +41,18 @@ class FirestoreRepository {
 
   //Obtener la lista de contactos de un usuario
   Future<List<AppUser>> getContacts(String id) async {
-    final contacts = await _firestore
+    final contactsId = await _firestore
         .collection('users')
         .doc(id)
         .collection('contacts')
         .get();
-    return contacts.docs.map((e) => AppUser.fromMap(e.data())).toList();
+
+    final contacts = await Future.wait(contactsId.docs.map((e) async {
+      //Obtener los datos de cada usuario
+      final contact = await _firestore.collection('users').doc(e.id).get();
+      return AppUser.fromMap(contact.data()!);
+    }));
+    return contacts;
   }
 
   //Agregar un contacto
@@ -73,9 +79,9 @@ class FirestoreRepository {
   //Quitar de los usuarios encontrados al usuario con el id userId
   //Si el nombre esta vacio o tiene menos de 3 caracteres, no buscar
   Future<List<AppUser>> searchUsers(String name, String userId) async {
-    if (name.isEmpty || name.length < 3) {
-      return [];
-    }
+    // if (name.isEmpty || name.length < 3) {
+    //   return [];
+    // }
 
     final users = await _firestore
         .collection('users')
@@ -166,14 +172,18 @@ class FirestoreRepository {
   }
 
   //Obtener el chat a partir de un Id
-  Future<Chat?> getChatById(String userId, String chat) async {
+  Future<Chat?> getChatById(String userId, String chatId) async {
     final chatData = await _firestore
         .collection('users')
         .doc(userId)
         .collection('chats')
-        .doc(chat)
         .get();
-    return Chat.fromMap(chatData.data()!);
+
+    //Verificar si el chat existe
+    final chat = chatData.docs.firstWhere((element) => element.id == chatId);
+
+    //Si existe, devolver el chat
+    return chat.exists ? Chat.fromMap(chat.data()) : null;
   }
 
   //Eliminar un chat

@@ -25,26 +25,30 @@ class _NewMessageFieldState extends State<NewMessageField> {
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(8),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _textController,
-              autocorrect: true,
-              textCapitalization: TextCapitalization.sentences,
-              enableSuggestions: true,
-              decoration: const InputDecoration(labelText: 'Enviar mensaje...'),
+      child: Card(
+        elevation: 5,
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.attach_file),
             ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.attach_file),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.send),
-          ),
-        ],
+            Expanded(
+              child: TextField(
+                controller: _textController,
+                textCapitalization: TextCapitalization.sentences,
+                minLines: 1,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                    border: InputBorder.none, hintText: 'Enviar mensaje...'),
+              ),
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.send),
+            ),
+          ],
+        ),
       ),
     );
   }

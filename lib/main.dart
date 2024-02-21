@@ -1,5 +1,6 @@
 import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/cubits/contacts/contactcubit.dart';
+import 'package:chat_app/cubits/messages/messagecubit.dart';
 import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:chat_app/dependency.dart';
 import 'package:chat_app/firebase_options.dart';
@@ -57,15 +58,12 @@ void main() async {
 
   //DEBUG: Borrar todos los datos de Hive
   //await HiveRepository().deleteAllData();
-
+  await Hive.openBox('users');
   var box = await Hive.openBox('settings');
-
   final email = box.get('email');
   final password = box.get('password');
 
   bool darkthemeMode = box.get('themeMode', defaultValue: false);
-
-  await Hive.openBox('users');
 
   initialRoute = await autoLogin(email, password);
 
@@ -112,17 +110,15 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<UserCubit>(
           create: (context) =>
-              sl()..getUserById(FirebaseAuth.instance.currentUser!.uid),
+              sl()..setUserById(FirebaseAuth.instance.currentUser!.uid),
         ),
         BlocProvider<ChatCubit>(
           create: (context) => sl()..loadChats(),
         ),
-        BlocProvider<ContactsCubit>(
-          create: (context) => sl()
-            ..getRemoteContacts(
-              FirebaseAuth.instance.currentUser!.uid,
-            ),
-        )
+        BlocProvider<ContactsCubit>(create: (context) => sl()..getContacts()),
+        BlocProvider<MessageCubit>(
+          create: (context) => sl(),
+        ),
       ],
       child: MaterialApp(
         initialRoute: initialRoute,

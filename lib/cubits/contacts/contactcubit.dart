@@ -15,42 +15,42 @@ class ContactsCubit extends Cubit<ContactState> {
     required this.firestoreRepository,
   }) : super(const ContactInitial(contacts: []));
 
-  //Metodo para obtener los contactos
-  //Obtiene de firebase y guarda en Hive
-  Future<void> getRemoteContacts(String userId) async {
-    emit(const ContactLoading(contacts: []));
+  //Obtener los contactos de Hive y de Firestore
+  Future<void> getContacts() async {
+    final contacts = await hiveRepository.getContacts();
 
-    try {
-      final contacts = await firestoreRepository.getContacts(userId);
+    if (contacts.isEmpty) {
+      emit(const ContactError(message: 'No hay contactos', contacts: []));
+    } else {
+      emit(ContactLoading(contacts: contacts));
+    }
 
+    final userId = await hiveRepository.getCurrentUserId();
+
+    if (userId == null) {
       if (contacts.isEmpty) {
-        emit(const ContactError(message: 'No hay contactos', contacts: []));
+        emit(const ContactError(message: 'No hay usuario', contacts: []));
         return;
       }
-
-      await hiveRepository.saveContacts(contacts);
       emit(ContactReady(contacts: contacts));
-    } catch (e) {
-      emit(ContactError(message: e.toString(), contacts: state.contacts));
+      return;
     }
-  }
 
-  //Metodo para obtener los contactos de Hive
-  Future<void> getLocalContacts() async {
-    emit(const ContactLoading(contacts: []));
+    final firebaseContacts = await firestoreRepository.getContacts(userId);
 
-    try {
-      final contacts = await hiveRepository.getContacts();
+    if (firebaseContacts.isEmpty) {
+      return;
+    }
 
-      if (contacts.isEmpty) {
-        emit(const ContactError(message: 'No hay contactos', contacts: []));
-        return;
+    for (var contact in firebaseContacts) {
+      if (!contacts.contains(contact)) {
+        await hiveRepository.addContact(contact);
       }
-
-      emit(ContactReady(contacts: contacts));
-    } catch (e) {
-      emit(ContactError(message: e.toString(), contacts: state.contacts));
     }
+
+    final allContacts = await hiveRepository.getContacts();
+
+    emit(ContactReady(contacts: allContacts));
   }
 
   //Metodo para agregar un contacto
