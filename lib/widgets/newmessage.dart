@@ -60,9 +60,13 @@ class _NewMessageFieldState extends State<NewMessageField> {
                     time: DateTime.now(),
                     status: MessageStatus.enviado);
 
-                FirestoreRepository().addMessage(message);
+                //Enviar mensaje a un targetId
+                await FirestoreRepository()
+                    .addMessage(message, widget.chat.otherUserId);
 
-                context.read<ChatCubit>().updateChat(widget.chat, message);
+                if (context.mounted) {
+                  context.read<ChatCubit>().updateChat(widget.chat, message);
+                }
 
                 _textController.clear();
               },

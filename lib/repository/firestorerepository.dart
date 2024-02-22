@@ -114,13 +114,6 @@ class FirestoreRepository {
     //Si el chat ya existe, no hacer nada
     if (await getChatId(userId, contactId) != null) return;
 
-    final otherId = const Uuid().v4();
-    final Chat otherChat = newChat.copyWith(
-      id: otherId,
-      userId: contactId,
-      otherUserId: userId,
-    );
-
     //Guardar chat en la coleccion de chats
     await _firestore
         .collection('users')
@@ -128,13 +121,6 @@ class FirestoreRepository {
         .collection('chats')
         .doc(newChat.id)
         .set(newChat.toMap());
-
-    await _firestore
-        .collection('users')
-        .doc(contactId)
-        .collection('chats')
-        .doc(otherChat.id)
-        .set(otherChat.toMap());
 
     //Tambien guardamos el id del chat en la coleccion de usuarios
     //Y el id del chat en la coleccion de contactos
@@ -144,6 +130,31 @@ class FirestoreRepository {
         .collection('contacts')
         .doc(contactId)
         .set({'chatId': newChat.id});
+
+    //Lo mismo para el otro usuario
+    //Preguntamos si el chat existe
+    if (await getChatId(contactId, userId) != null) return;
+
+    final otherId = const Uuid().v4();
+    final Chat otherChat = newChat.copyWith(
+      id: otherId,
+      userId: contactId,
+      otherUserId: userId,
+    );
+
+    await _firestore
+        .collection('users')
+        .doc(contactId)
+        .collection('chats')
+        .doc(otherChat.id)
+        .set(otherChat.toMap());
+
+    await _firestore
+        .collection('users')
+        .doc(contactId)
+        .collection('contacts')
+        .doc(userId)
+        .set({'chatId': otherChat.id});
   }
 
   //Obtener los chats de un usuario
@@ -232,7 +243,7 @@ class FirestoreRepository {
   }
 
   //Agregar un mensaje a un chat
-  Future<void> addMessage(Message message) async {
+  Future<void> addMessage(Message message, String targetId) async {
     try {
       //Crear la coleccion de mensajes si no existe
       await _firestore
@@ -240,6 +251,34 @@ class FirestoreRepository {
           .doc(message.senderId)
           .collection('chats')
           .doc(message.chatId)
+          .collection('messages')
+          .doc(message.id)
+          .set(message.toMap());
+
+      //Crear mensaje para el otro chat del usuario
+      final otherMessageId = await getChatId(targetId, message.senderId);
+
+      //Si el id es null quiere decir que no existe el chat y vamos
+      //a crear
+      if (otherMessageId == null) {
+        final otherId = const Uuid().v4();
+        final otherChat = Chat(
+          id: otherId,
+          userId: targetId,
+          otherUserId: message.senderId,
+          lastMessage: message.text,
+          lastMessageTime: message.time,
+          unreadMessages: 1,
+        );
+
+        await createChat(otherChat);
+      }
+
+      await _firestore
+          .collection('users')
+          .doc(targetId)
+          .collection('chats')
+          .doc(otherMessageId)
           .collection('messages')
           .doc(message.id)
           .set(message.toMap());

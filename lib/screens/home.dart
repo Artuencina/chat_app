@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/cubits/contacts/contactcubit.dart';
 import 'package:chat_app/models/user.dart';
@@ -28,11 +30,17 @@ class _HomeScreenState extends State<HomeScreen> {
   final SearchController searchController = SearchController();
   String query = '';
 
+  late Timer _timer;
   @override
   void initState() {
     super.initState();
 
     context.read<ChatCubit>().loadChats();
+
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      context.read<ChatCubit>().loadChats();
+    });
+
     _pageController.addListener(() {
       setState(() {
         index = _pageController.page!.round();
@@ -45,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     _pageController.dispose();
     searchController.dispose();
+    _timer.cancel();
     super.dispose();
   }
 
@@ -163,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         title: Text(items[index].name),
                         subtitle: Text(items[index].info),
-                        onTap: () {
+                        onTap: () async {
                           //Crear chat
                           controller.clear();
                           context
@@ -171,7 +180,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               .addChat(userId, items[index].id);
                           //Cerrar el buscador
                           controller.closeView(null);
-                          //TODO: Navegar directamente al chat
+
+                          if (context.mounted) {
+                            Navigator.of(context)
+                                .pushNamed('/chat/${items[index].id}');
+                          }
                         },
                       ),
                     );

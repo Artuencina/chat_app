@@ -34,11 +34,15 @@ class _ChatBubbleState extends State<ChatBubble> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return Row(
       mainAxisAlignment:
           widget.isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
         Container(
+          constraints: BoxConstraints(
+            maxWidth: width * 0.8,
+          ),
           margin: EdgeInsets.symmetric(
               vertical: widget.continueChat ? 1 : 10, horizontal: 10),
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
@@ -62,9 +66,11 @@ class _ChatBubbleState extends State<ChatBubble> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                widget.message.text,
-                style: Theme.of(context).textTheme.bodyMedium,
+              Flexible(
+                child: Text(
+                  widget.message.text,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
               const SizedBox(
                 width: 10,

@@ -14,11 +14,8 @@ class Chats extends StatelessWidget {
   const Chats({super.key});
 
   static DateFormat dateFormat = DateFormat('HH:mm');
-
   @override
   Widget build(BuildContext context) {
-    //Obtener chats del usuario 0
-
     return BlocBuilder<ChatCubit, ChatsState>(
       builder: (context, state) {
         //Loading muestra los chats locales y un icono arriba

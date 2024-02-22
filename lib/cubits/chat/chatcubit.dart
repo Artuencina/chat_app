@@ -39,23 +39,29 @@ class ChatCubit extends Cubit<ChatsState> {
 
     final currentUserId = await hiveRepository.getCurrentUserId();
 
-    if (currentUserId == null) {
-      if (localChats.isEmpty) {
-        emit(const ChatsEmpty(chats: []));
-      } else {
-        emit(ChatsLoaded(chats: localChats));
-      }
-      return;
-    }
+    if (currentUserId == null) return;
 
+    if (await fetchChats(currentUserId, localChats)) {
+      emit(ChatsLoaded(chats: await hiveRepository.getChats()));
+    } else if (localChats.isEmpty) {
+      emit(const ChatsEmpty(chats: []));
+    } else {
+      emit(ChatsLoaded(chats: localChats));
+    }
+  }
+
+  //Hacer fetch de los chats que estan en firebase y actualizar la base local
+  Future<bool> fetchChats(String currentUserId, List<Chat> localChats) async {
     //Vamos a traer los chats de firebase y actualizar los chats de hive si hay diferencia
     final firebaseChats = await firestoreRepository.getChats(currentUserId);
 
     //Si no hay chats en firebase, no hacemos nada
     if (firebaseChats.isEmpty) {
       emit(const ChatsEmpty(chats: []));
-      return;
+      return false;
     }
+
+    bool hayNuevosChats = false;
 
     //Si hay chats en firebase, los comparamos con los de hive
     //Si hay diferencia, actualizamos los chats de hive
@@ -79,7 +85,7 @@ class ChatCubit extends Cubit<ChatsState> {
         if (hiveChat.isEmpty()) {
           //Si el chat no existe en hive, lo guardamos
           await hiveRepository.saveChat(chat);
-
+          hayNuevosChats = true;
           //Tambien obtenemos el usuario del chat y lo guardamos en hive
           final otherUser =
               await firestoreRepository.getUserById(chat.otherUserId);
@@ -88,15 +94,30 @@ class ChatCubit extends Cubit<ChatsState> {
           }
         }
         //Si el chat existe en hive, comparamos el ultimo mensaje
-        if (chat.lastMessage != hiveChat.lastMessage) {
+        if (chat.lastMessageTime != hiveChat.lastMessageTime) {
           //Si el ultimo mensaje es diferente, actualizamos el chat
+          hayNuevosChats = true;
           await hiveRepository.updateChat(chat);
         }
       }
     }
+    return hayNuevosChats;
+  }
 
-    //Obtener los chats actualizados
-    emit(ChatsLoaded(chats: await hiveRepository.getChats()));
+  //Actualizar el chat de forma reiterada cuando hay un cambio en la base remota
+  Future<void> checkChats() async {
+    final currentUserId = await hiveRepository.getCurrentUserId();
+    if (currentUserId == null) return;
+
+    final localChats = await hiveRepository.getChats();
+
+    if (await fetchChats(currentUserId, localChats)) {
+      emit(ChatsLoaded(chats: await hiveRepository.getChats()));
+    } else if (localChats.isEmpty) {
+      emit(const ChatsEmpty(chats: []));
+    } else {
+      emit(ChatsLoaded(chats: localChats));
+    }
   }
 
   //Metodo para actualizar la lista de chats cuando se recibe un nuevo mensaje

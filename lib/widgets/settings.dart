@@ -1,5 +1,6 @@
 //Widget para administrar las configuraciones de la aplicación
 
+import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:chat_app/cubits/user/userstate.dart';
 import 'package:chat_app/widgets/profilehero.dart';
