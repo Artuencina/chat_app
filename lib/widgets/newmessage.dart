@@ -2,10 +2,13 @@
 //Textfield para escribir el mensaje
 //Boton para enviar el mensaje
 
+import 'package:chat_app/models/chat.dart';
 import 'package:flutter/material.dart';
 
 class NewMessageField extends StatefulWidget {
-  const NewMessageField({super.key});
+  const NewMessageField({super.key, required this.chat});
+
+  final Chat chat;
 
   @override
   State<NewMessageField> createState() => _NewMessageFieldState();
