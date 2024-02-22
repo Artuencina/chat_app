@@ -104,12 +104,22 @@ class ChatCubit extends Cubit<ChatsState> {
   //Se cambia el mensaje y la fecha del ultimo mensaje
   //Se mueve el chat al inicio de la lista
   Future<void> updateChat(Chat chat, Message message) async {
-    chat.lastMessage = message.text;
+    final bool isMine = message.senderId == chat.userId;
+
     chat.lastMessageTime = message.time;
-    chat.unreadMessages++;
+
+    //Si el mensaje es del usuario actual, no aumentamos el contador de mensajes no leidos
+    if (!isMine) {
+      chat.unreadMessages++;
+      chat.lastMessage = message.text;
+    } else {
+      chat.unreadMessages = 0;
+      chat.lastMessage = 'Tú: ${message.text}';
+    }
     await hiveRepository.updateChat(chat);
-    await firestoreRepository.updateChatLastMessage(message);
-    emit(ChatsLoaded(chats: await hiveRepository.getChats()));
+    await firestoreRepository.updateChatLastMessage(chat);
+
+    loadChats();
   }
 
   //Agregar un chat

@@ -201,19 +201,16 @@ class FirestoreRepository {
   }
 
   //Actualizar el ultimo mensaje de un chat
-  Future<void> updateChatLastMessage(Message message) {
-    final chatId = message.chatId;
-    final userId = message.senderId;
-
+  Future<void> updateChatLastMessage(Chat chat) {
     return _firestore
         .collection('users')
-        .doc(userId)
+        .doc(chat.userId)
         .collection('chats')
-        .doc(chatId)
+        .doc(chat.id)
         .update({
-      'lastMessage': message.text,
-      'lastMessageTime': message.time,
-      'unreadMessages': FieldValue.increment(1),
+      'lastMessage': chat.lastMessage,
+      'lastMessageTime': chat.lastMessageTime,
+      'unreadMessages': chat.unreadMessages,
     });
   }
 
@@ -236,13 +233,18 @@ class FirestoreRepository {
 
   //Agregar un mensaje a un chat
   Future<void> addMessage(Message message) async {
-    await _firestore
-        .collection('users')
-        .doc(message.senderId)
-        .collection('chats')
-        .doc(message.chatId)
-        .collection('messages')
-        .doc()
-        .set(message.toMap());
+    try {
+      //Crear la coleccion de mensajes si no existe
+      await _firestore
+          .collection('users')
+          .doc(message.senderId)
+          .collection('chats')
+          .doc(message.chatId)
+          .collection('messages')
+          .doc(message.id)
+          .set(message.toMap());
+    } catch (e) {
+      print(e);
+    }
   }
 }

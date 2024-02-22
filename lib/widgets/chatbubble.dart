@@ -15,10 +15,12 @@ class ChatBubble extends StatefulWidget {
     super.key,
     required this.message,
     required this.isMine,
+    required this.continueChat,
   });
 
   final Message message;
   final bool isMine;
+  final bool continueChat;
 
   @override
   State<ChatBubble> createState() => _ChatBubbleState();
@@ -37,8 +39,9 @@ class _ChatBubbleState extends State<ChatBubble> {
           widget.isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
         Container(
-          margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+          margin: EdgeInsets.symmetric(
+              vertical: widget.continueChat ? 1 : 10, horizontal: 10),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
           decoration: BoxDecoration(
             color: widget.isMine
                 ? Theme.of(context).primaryColor
@@ -55,28 +58,20 @@ class _ChatBubbleState extends State<ChatBubble> {
                     bottomRight: Radius.circular(20),
                   ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 widget.message.text,
-                style: TextStyle(
-                  color: widget.isMine
-                      ? Theme.of(context).highlightColor
-                      : Theme.of(context).primaryColor,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(
-                height: 5,
+                width: 10,
               ),
               Text(
                 formatter.format(widget.message.time),
-                style: TextStyle(
-                  color: widget.isMine
-                      ? Theme.of(context).highlightColor
-                      : Theme.of(context).primaryColor,
-                  fontSize: 12,
-                ),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             ],
           ),

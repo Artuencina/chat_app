@@ -1,7 +1,9 @@
 import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:chat_app/models/chat.dart';
+import 'package:chat_app/models/message.dart';
 import 'package:chat_app/models/user.dart';
 import 'package:chat_app/repository/hiverepository.dart';
+import 'package:chat_app/widgets/chatbubble.dart';
 import 'package:chat_app/widgets/newmessage.dart';
 import 'package:chat_app/widgets/profilemini.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,7 +25,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late AppUser? otherUser;
   late String? userId;
 
-  bool loading = false;
+  String lastUserMessageId = '';
 
   @override
   void initState() {
@@ -65,30 +67,38 @@ class _ChatScreenState extends State<ChatScreen> {
               .collection('chats')
               .doc(chat!.id)
               .collection('messages')
-              .orderBy('timestamp', descending: true)
+              .orderBy('time', descending: true)
               .snapshots(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+            List<QueryDocumentSnapshot> messages = [];
+
+            if (snapshot.data != null) {
+              messages = snapshot.data!.docs;
             }
-            final messages = snapshot.data!.docs;
+
             return Column(
               children: [
                 Expanded(
-                    child: AnimatedList(
-                  reverse: true,
-                  initialItemCount: messages.length,
-                  itemBuilder: (context, index, animation) {
-                    final message = messages[index];
-                    return SizeTransition(
-                      sizeFactor: animation,
-                      child: ListTile(
-                        title: Text(message['text']),
-                        subtitle: Text(message['sender']),
-                      ),
-                    );
-                  },
-                )),
+                    child: snapshot.connectionState != ConnectionState.waiting
+                        ? ListView.builder(
+                            reverse: true,
+                            itemCount: messages.length,
+                            itemBuilder: (context, index) {
+                              final message = Message.fromMap(messages[index]
+                                  .data() as Map<String, dynamic>);
+                              final continueChat =
+                                  lastUserMessageId == message.senderId;
+                              lastUserMessageId = message.senderId;
+
+                              return ChatBubble(
+                                message: message,
+                                isMine: message.senderId == userId,
+                                continueChat: continueChat,
+                              );
+                            })
+                        : const SizedBox()),
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  const LinearProgressIndicator(),
                 NewMessageField(chat: chat!),
               ],
             );

@@ -2,8 +2,12 @@
 //Textfield para escribir el mensaje
 //Boton para enviar el mensaje
 
+import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/models/chat.dart';
+import 'package:chat_app/models/message.dart';
+import 'package:chat_app/repository/firestorerepository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NewMessageField extends StatefulWidget {
   const NewMessageField({super.key, required this.chat});
@@ -47,7 +51,21 @@ class _NewMessageFieldState extends State<NewMessageField> {
               ),
             ),
             IconButton(
-              onPressed: () {},
+              onPressed: () async {
+                //Utilizando el repositorio de firestore, enviamos el mensaje
+                final Message message = Message(
+                    chatId: widget.chat.id,
+                    text: _textController.text,
+                    senderId: widget.chat.userId,
+                    time: DateTime.now(),
+                    status: MessageStatus.enviado);
+
+                FirestoreRepository().addMessage(message);
+
+                context.read<ChatCubit>().updateChat(widget.chat, message);
+
+                _textController.clear();
+              },
               icon: const Icon(Icons.send),
             ),
           ],

@@ -93,11 +93,26 @@ class Chats extends StatelessWidget {
                       chat.lastMessage,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    trailing: Text(
-                      chat.lastMessageTime == null
-                          ? ''
-                          : dateFormat.format(chat.lastMessageTime!),
-                      style: Theme.of(context).textTheme.bodySmall,
+                    trailing: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          chat.lastMessageTime == null
+                              ? ''
+                              : dateFormat.format(chat.lastMessageTime!),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        if (chat.unreadMessages > 0)
+                          Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(chat.unreadMessages.toString(),
+                                style: Theme.of(context).textTheme.bodySmall),
+                          ),
+                      ],
                     ),
                     onTap: () {
                       Navigator.of(context).pushNamed(

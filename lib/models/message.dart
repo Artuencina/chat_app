@@ -63,6 +63,7 @@ class Message extends Equatable {
   //Mapear de un mensaje a un mapa
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'chat': chatId,
       'text': text,
       'time': time,
