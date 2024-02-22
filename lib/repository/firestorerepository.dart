@@ -212,8 +212,8 @@ class FirestoreRepository {
   }
 
   //Actualizar el ultimo mensaje de un chat
-  Future<void> updateChatLastMessage(Chat chat) {
-    return _firestore
+  Future<void> updateChatLastMessage(Chat chat) async {
+    await _firestore
         .collection('users')
         .doc(chat.userId)
         .collection('chats')
@@ -256,11 +256,11 @@ class FirestoreRepository {
           .set(message.toMap());
 
       //Crear mensaje para el otro chat del usuario
-      final otherMessageId = await getChatId(targetId, message.senderId);
+      final otherChatId = await getChatId(targetId, message.senderId);
 
       //Si el id es null quiere decir que no existe el chat y vamos
       //a crear
-      if (otherMessageId == null) {
+      if (otherChatId == null) {
         final otherId = const Uuid().v4();
         final otherChat = Chat(
           id: otherId,
@@ -278,10 +278,19 @@ class FirestoreRepository {
           .collection('users')
           .doc(targetId)
           .collection('chats')
-          .doc(otherMessageId)
+          .doc(otherChatId)
           .collection('messages')
           .doc(message.id)
           .set(message.toMap());
+
+      //Actualizar el ultimo mensaje del otro chat
+      final otherChat = await getChatById(targetId, message.senderId);
+
+      otherChat!.lastMessage = message.text;
+      otherChat.lastMessageTime = message.time;
+      otherChat.unreadMessages++;
+
+      await updateChatLastMessage(otherChat);
     } catch (e) {
       print(e);
     }

@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<ChatCubit>().loadChats();
 
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      context.read<ChatCubit>().loadChats();
+      context.read<ChatCubit>().checkChats();
     });
 
     _pageController.addListener(() {
@@ -175,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () async {
                           //Crear chat
                           controller.clear();
-                          context
+                          await context
                               .read<ChatCubit>()
                               .addChat(userId, items[index].id);
                           //Cerrar el buscador

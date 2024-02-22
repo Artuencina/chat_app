@@ -93,8 +93,10 @@ class ChatCubit extends Cubit<ChatsState> {
             await hiveRepository.saveUser(otherUser);
           }
         }
+        if (chat.lastMessageTime == null) continue;
         //Si el chat existe en hive, comparamos el ultimo mensaje
-        if (chat.lastMessageTime != hiveChat.lastMessageTime) {
+        if (chat.lastMessageTime!
+            .isAfter(hiveChat.lastMessageTime ?? DateTime(0))) {
           //Si el ultimo mensaje es diferente, actualizamos el chat
           hayNuevosChats = true;
           await hiveRepository.updateChat(chat);
