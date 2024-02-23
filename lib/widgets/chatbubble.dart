@@ -1,10 +1,11 @@
 //Burbuja de chat que muestra el mensaje, la hora
 //Dependiendo si el mensaje es del usuario o del otro usuario, se muestra a la derecha o a la izquierda
 //El color del usuario es primary y el del otro usuario es secondary
-//TODO: Agregar estados de lectura
 
+import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 //Formatter
@@ -29,6 +30,10 @@ class ChatBubble extends StatefulWidget {
 class _ChatBubbleState extends State<ChatBubble> {
   @override
   void initState() {
+    if (widget.message.status == MessageStatus.enviado) {
+      context.read<ChatCubit>().markMessagesAsReadById(widget.message.chatId);
+    }
+
     super.initState();
   }
 

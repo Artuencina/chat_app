@@ -297,33 +297,25 @@ class FirestoreRepository {
   }
 
   //Marcar mensajes como leidos para el otro usuario
-  Future<void> markMessagesAsRead(Chat chat) async {
-    final otherChatId = await getChatId(chat.otherUserId, chat.userId);
+  Future<void> markMessagesAsRead(Chat otherChat) async {
+    final otherMessages = await _firestore
+        .collection('users')
+        .doc(otherChat.userId)
+        .collection('chats')
+        .doc(otherChat.id)
+        .collection('messages')
+        .where('status', isEqualTo: MessageStatus.enviado.index)
+        .get();
 
-    if (otherChatId == null) return;
-
-    final otherChat = await getChatById(chat.otherUserId, otherChatId);
-
-    if (otherChat != null) {
-      final otherMessages = await _firestore
+    for (var message in otherMessages.docs) {
+      await _firestore
           .collection('users')
-          .doc(chat.otherUserId)
+          .doc(otherChat.userId)
           .collection('chats')
-          .doc(chat.id)
+          .doc(otherChat.id)
           .collection('messages')
-          .where('status', isEqualTo: MessageStatus.enviado.index)
-          .get();
-
-      for (var message in otherMessages.docs) {
-        await _firestore
-            .collection('users')
-            .doc(chat.otherUserId)
-            .collection('chats')
-            .doc(chat.id)
-            .collection('messages')
-            .doc(message.id)
-            .update({'status': MessageStatus.leido.index});
-      }
+          .doc(message.id)
+          .update({'status': MessageStatus.leido.index});
     }
   }
 }

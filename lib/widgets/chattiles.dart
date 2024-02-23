@@ -113,13 +113,15 @@ class Chats extends StatelessWidget {
                           ),
                       ],
                     ),
-                    onTap: () {
+                    onTap: () async {
                       //Mientras se abre el chat, se marca como leido
-                      context.read<ChatCubit>().markMessagesAsRead(chat);
+                      await context.read<ChatCubit>().markMessagesAsRead(chat);
 
-                      Navigator.of(context).pushNamed(
-                        '/chat/${chat.id}',
-                      );
+                      if (context.mounted) {
+                        Navigator.of(context).pushNamed(
+                          '/chat/${chat.id}',
+                        );
+                      }
                     },
                   ),
                   const Divider(
