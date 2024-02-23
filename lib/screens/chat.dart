@@ -33,7 +33,7 @@ class _ChatScreenState extends State<ChatScreen> {
     chat = HiveRepository().getChatById(widget.chatId);
 
     //Obtener el userId del estado del UserCubit
-    userId = context.read<UserCubit>().state.currentUser?.id;
+    userId = chat!.userId;
 
     if (chat == null) {
       //Si el chat es null, mostrar un error

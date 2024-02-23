@@ -284,7 +284,7 @@ class FirestoreRepository {
           .set(message.toMap());
 
       //Actualizar el ultimo mensaje del otro chat
-      final otherChat = await getChatById(targetId, message.senderId);
+      final otherChat = await getChatById(targetId, otherChatId!);
 
       otherChat!.lastMessage = message.text;
       otherChat.lastMessageTime = message.time;

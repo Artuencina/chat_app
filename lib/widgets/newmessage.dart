@@ -53,6 +53,7 @@ class _NewMessageFieldState extends State<NewMessageField> {
             IconButton(
               onPressed: () async {
                 //Utilizando el repositorio de firestore, enviamos el mensaje
+                _textController.clear();
                 final Message message = Message(
                     chatId: widget.chat.id,
                     text: _textController.text,
@@ -67,8 +68,6 @@ class _NewMessageFieldState extends State<NewMessageField> {
                 if (context.mounted) {
                   context.read<ChatCubit>().updateChat(widget.chat, message);
                 }
-
-                _textController.clear();
               },
               icon: const Icon(Icons.send),
             ),
