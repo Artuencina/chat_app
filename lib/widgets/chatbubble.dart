@@ -30,8 +30,9 @@ class ChatBubble extends StatefulWidget {
 class _ChatBubbleState extends State<ChatBubble> {
   @override
   void initState() {
-    if (widget.message.status == MessageStatus.enviado) {
-      context.read<ChatCubit>().markMessagesAsReadById(widget.message.chatId);
+    if (!widget.isMine || widget.message.status == MessageStatus.enviado) {
+      context.read<ChatCubit>().markMessagesAsReadById(
+          widget.message.senderId, widget.message.chatId);
     }
 
     super.initState();

@@ -78,6 +78,10 @@ class HiveRepository {
     final chat = box.values
         .firstWhere((element) => element.id == id, orElse: () => Chat.empty());
 
+    if (chat.id == '') {
+      return null;
+    }
+
     return chat;
   }
 

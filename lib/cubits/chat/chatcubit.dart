@@ -145,6 +145,14 @@ class ChatCubit extends Cubit<ChatsState> {
     loadChats();
   }
 
+  //Metodo para resetear el contador de mensajes no leidos
+  Future<void> resetUnreadMessages(Chat chat) async {
+    chat.unreadMessages = 0;
+    await hiveRepository.updateChat(chat);
+    await firestoreRepository.updateChatLastMessage(chat);
+    loadChats();
+  }
+
   //Agregar un chat
   Future<void> addChat(String userId, String otherUserId) async {
     //id con uuId
@@ -168,44 +176,12 @@ class ChatCubit extends Cubit<ChatsState> {
     await firestoreRepository.createChat(chat);
   }
 
-  //Marcar mensajes de un chat como leidos
-  Future<void> markMessagesAsRead(Chat chat) async {
-    //Obtener el otro chat
-    final otherChatId =
-        await firestoreRepository.getChatId(chat.otherUserId, chat.userId);
-
-    if (otherChatId == null) return;
-
-    final otherChat =
-        await firestoreRepository.getChatById(chat.otherUserId, otherChatId);
-
-    if (otherChat == null) return;
-
-    otherChat.unreadMessages = 0;
-
-    await firestoreRepository.updateChatLastMessage(otherChat);
-    await firestoreRepository.markMessagesAsRead(otherChat);
-    //loadChats();
-  }
-
-  Future<void> markMessagesAsReadById(String chatId) async {
-    final chat = hiveRepository.getChatById(chatId);
+  Future<void> markMessagesAsReadById(String otherUserId, String chatId) async {
+    final chat = await firestoreRepository.getChatById(otherUserId, chatId);
     if (chat != null) {
       //Obtener el otro chat
-      final otherChatId =
-          await firestoreRepository.getChatId(chat.otherUserId, chat.userId);
-
-      if (otherChatId == null) return;
-
-      final otherChat =
-          await firestoreRepository.getChatById(chat.otherUserId, otherChatId);
-
-      if (otherChat == null) return;
-
-      otherChat.unreadMessages = 0;
-
-      await firestoreRepository.updateChatLastMessage(otherChat);
-      await firestoreRepository.markMessagesAsRead(otherChat);
+      await firestoreRepository.updateChatLastMessage(chat);
+      await firestoreRepository.markMessagesAsRead(chat);
     }
   }
 }

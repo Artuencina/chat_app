@@ -114,8 +114,9 @@ class Chats extends StatelessWidget {
                       ],
                     ),
                     onTap: () async {
-                      //Mientras se abre el chat, se marca como leido
-                      await context.read<ChatCubit>().markMessagesAsRead(chat);
+                      //Mientras se abre el chat, se pone el unread Messages a 0
+                      chat.unreadMessages = 0;
+                      await context.read<ChatCubit>().resetUnreadMessages(chat);
 
                       if (context.mounted) {
                         Navigator.of(context).pushNamed(
