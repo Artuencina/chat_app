@@ -53,14 +53,15 @@ class _NewMessageFieldState extends State<NewMessageField> {
             IconButton(
               onPressed: () async {
                 //Utilizando el repositorio de firestore, enviamos el mensaje
-                _textController.clear();
+                if (_textController.text.isEmpty) return;
+
                 final Message message = Message(
                     chatId: widget.chat.id,
                     text: _textController.text,
                     senderId: widget.chat.userId,
                     time: DateTime.now(),
                     status: MessageStatus.enviado);
-
+                _textController.clear();
                 //Enviar mensaje a un targetId
                 await FirestoreRepository()
                     .addMessage(message, widget.chat.otherUserId);

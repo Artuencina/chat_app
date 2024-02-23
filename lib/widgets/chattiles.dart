@@ -89,6 +89,7 @@ class Chats extends StatelessWidget {
                     subtitle: Text(
                       chat.lastMessage,
                       style: Theme.of(context).textTheme.bodyMedium,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     trailing: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -112,6 +113,9 @@ class Chats extends StatelessWidget {
                       ],
                     ),
                     onTap: () {
+                      //Mientras se abre el chat, se marca como leido
+                      context.read<ChatCubit>().markMessagesAsRead(chat);
+
                       Navigator.of(context).pushNamed(
                         '/chat/${chat.id}',
                       );

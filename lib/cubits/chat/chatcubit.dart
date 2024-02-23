@@ -167,4 +167,12 @@ class ChatCubit extends Cubit<ChatsState> {
     //Agregar chat a firebase
     await firestoreRepository.createChat(chat);
   }
+
+  //Marcar mensajes de un chat como leidos (para ambos usuarios)
+  Future<void> markMessagesAsRead(Chat chat) async {
+    chat.unreadMessages = 0;
+    await hiveRepository.updateChat(chat);
+    await firestoreRepository.markMessagesAsRead(chat);
+    //loadChats();
+  }
 }

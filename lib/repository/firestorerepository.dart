@@ -295,4 +295,31 @@ class FirestoreRepository {
       print(e);
     }
   }
+
+  //Marcar mensajes como leidos para el otro usuario
+  Future<void> markMessagesAsRead(Chat chat) async {
+    final otherChat = await getChatById(chat.otherUserId, chat.id);
+
+    if (otherChat != null) {
+      final otherMessages = await _firestore
+          .collection('users')
+          .doc(chat.otherUserId)
+          .collection('chats')
+          .doc(chat.id)
+          .collection('messages')
+          .where('status', isEqualTo: MessageStatus.enviado.index)
+          .get();
+
+      for (var message in otherMessages.docs) {
+        await _firestore
+            .collection('users')
+            .doc(chat.otherUserId)
+            .collection('chats')
+            .doc(chat.id)
+            .collection('messages')
+            .doc(message.id)
+            .update({'status': MessageStatus.leido.index});
+      }
+    }
+  }
 }

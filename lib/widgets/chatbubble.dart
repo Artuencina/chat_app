@@ -45,7 +45,7 @@ class _ChatBubbleState extends State<ChatBubble> {
           ),
           margin: EdgeInsets.symmetric(
               vertical: widget.continueChat ? 1 : 10, horizontal: 10),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
           decoration: BoxDecoration(
             color: widget.isMine
                 ? Theme.of(context).primaryColor
@@ -75,10 +75,26 @@ class _ChatBubbleState extends State<ChatBubble> {
               const SizedBox(
                 width: 10,
               ),
+
               Text(
                 formatter.format(widget.message.time),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
+              const SizedBox(
+                width: 2,
+              ),
+              //Mostrar estado de lectura
+              widget.isMine
+                  ? widget.message.status == MessageStatus.leido
+                      ? const Icon(
+                          Icons.done_all,
+                          size: 15,
+                        )
+                      : const Icon(
+                          Icons.done,
+                          size: 15,
+                        )
+                  : const SizedBox.shrink(),
             ],
           ),
         ),

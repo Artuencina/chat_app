@@ -1,4 +1,3 @@
-import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:chat_app/models/chat.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:chat_app/models/user.dart';
@@ -8,7 +7,6 @@ import 'package:chat_app/widgets/newmessage.dart';
 import 'package:chat_app/widgets/profilemini.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key, required this.chatId});

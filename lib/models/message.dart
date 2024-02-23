@@ -34,7 +34,7 @@ class Message extends Equatable {
       required this.text,
       required this.time,
       required this.senderId,
-      this.status = MessageStatus.noEnviado})
+      this.status = MessageStatus.recibido})
       : id = uuid.v4();
 
   Message.exists(
