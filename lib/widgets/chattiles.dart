@@ -43,6 +43,7 @@ class Chats extends StatelessWidget {
                           ),
                           subtitle: Text(
                             chat.lastMessage,
+                            overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           trailing: Text(

@@ -298,7 +298,11 @@ class FirestoreRepository {
 
   //Marcar mensajes como leidos para el otro usuario
   Future<void> markMessagesAsRead(Chat chat) async {
-    final otherChat = await getChatById(chat.otherUserId, chat.id);
+    final otherChatId = await getChatId(chat.otherUserId, chat.userId);
+
+    if (otherChatId == null) return;
+
+    final otherChat = await getChatById(chat.otherUserId, otherChatId);
 
     if (otherChat != null) {
       final otherMessages = await _firestore
