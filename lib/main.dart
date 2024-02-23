@@ -1,6 +1,5 @@
 import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/cubits/contacts/contactcubit.dart';
-import 'package:chat_app/cubits/messages/messagecubit.dart';
 import 'package:chat_app/cubits/user/usercubit.dart';
 import 'package:chat_app/dependency.dart';
 import 'package:chat_app/firebase_options.dart';
@@ -116,9 +115,6 @@ class MyApp extends StatelessWidget {
           create: (context) => sl(),
         ),
         BlocProvider<ContactsCubit>(create: (context) => sl()..getContacts()),
-        BlocProvider<MessageCubit>(
-          create: (context) => sl(),
-        ),
       ],
       child: MaterialApp(
         initialRoute: initialRoute,

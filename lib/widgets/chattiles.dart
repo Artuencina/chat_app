@@ -115,7 +115,6 @@ class Chats extends StatelessWidget {
                     ),
                     onTap: () async {
                       //Mientras se abre el chat, se pone el unread Messages a 0
-                      chat.unreadMessages = 0;
                       await context.read<ChatCubit>().resetUnreadMessages(chat);
 
                       if (context.mounted) {

@@ -227,21 +227,6 @@ class FirestoreRepository {
 
   //---------Mensajes
 
-  //Obtener los mensajes de un chat
-  Future<List<Message>> getMessages(String userId, String chatId) async {
-    final messages = await _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .orderBy('time', descending: true)
-        .limit(25)
-        .get();
-
-    return messages.docs.map((e) => Message.fromMap(e.data())).toList();
-  }
-
   //Agregar un mensaje a un chat
   Future<void> addMessage(Message message, String targetId) async {
     try {
@@ -293,29 +278,6 @@ class FirestoreRepository {
       await updateChatLastMessage(otherChat);
     } catch (e) {
       print(e);
-    }
-  }
-
-  //Marcar mensajes como leidos para el otro usuario
-  Future<void> markMessagesAsRead(Chat otherChat) async {
-    final otherMessages = await _firestore
-        .collection('users')
-        .doc(otherChat.userId)
-        .collection('chats')
-        .doc(otherChat.id)
-        .collection('messages')
-        .where('status', isEqualTo: MessageStatus.enviado.index)
-        .get();
-
-    for (var message in otherMessages.docs) {
-      await _firestore
-          .collection('users')
-          .doc(otherChat.userId)
-          .collection('chats')
-          .doc(otherChat.id)
-          .collection('messages')
-          .doc(message.id)
-          .update({'status': MessageStatus.leido.index});
     }
   }
 }

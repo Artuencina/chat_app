@@ -150,7 +150,7 @@ class ChatCubit extends Cubit<ChatsState> {
     chat.unreadMessages = 0;
     await hiveRepository.updateChat(chat);
     await firestoreRepository.updateChatLastMessage(chat);
-    loadChats();
+    emit(ChatsLoaded(chats: await hiveRepository.getChats()));
   }
 
   //Agregar un chat
@@ -174,14 +174,5 @@ class ChatCubit extends Cubit<ChatsState> {
 
     //Agregar chat a firebase
     await firestoreRepository.createChat(chat);
-  }
-
-  Future<void> markMessagesAsReadById(String otherUserId, String chatId) async {
-    final chat = await firestoreRepository.getChatById(otherUserId, chatId);
-    if (chat != null) {
-      //Obtener el otro chat
-      await firestoreRepository.updateChatLastMessage(chat);
-      await firestoreRepository.markMessagesAsRead(chat);
-    }
   }
 }

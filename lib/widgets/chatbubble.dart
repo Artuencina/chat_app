@@ -2,16 +2,14 @@
 //Dependiendo si el mensaje es del usuario o del otro usuario, se muestra a la derecha o a la izquierda
 //El color del usuario es primary y el del otro usuario es secondary
 
-import 'package:chat_app/cubits/chat/chatcubit.dart';
 import 'package:chat_app/models/message.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 //Formatter
 final DateFormat formatter = DateFormat('HH:mm');
 
-class ChatBubble extends StatefulWidget {
+class ChatBubble extends StatelessWidget {
   const ChatBubble({
     super.key,
     required this.message,
@@ -24,39 +22,24 @@ class ChatBubble extends StatefulWidget {
   final bool continueChat;
 
   @override
-  State<ChatBubble> createState() => _ChatBubbleState();
-}
-
-class _ChatBubbleState extends State<ChatBubble> {
-  @override
-  void initState() {
-    if (!widget.isMine || widget.message.status == MessageStatus.enviado) {
-      context.read<ChatCubit>().markMessagesAsReadById(
-          widget.message.senderId, widget.message.chatId);
-    }
-
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return Row(
       mainAxisAlignment:
-          widget.isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+          isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
         Container(
           constraints: BoxConstraints(
             maxWidth: width * 0.8,
           ),
           margin: EdgeInsets.symmetric(
-              vertical: widget.continueChat ? 1 : 10, horizontal: 10),
+              vertical: continueChat ? 1 : 10, horizontal: 10),
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
           decoration: BoxDecoration(
-            color: widget.isMine
+            color: isMine
                 ? Theme.of(context).primaryColor
                 : Theme.of(context).highlightColor,
-            borderRadius: widget.isMine
+            borderRadius: isMine
                 ? const BorderRadius.only(
                     topLeft: Radius.circular(20),
                     bottomLeft: Radius.circular(20),
@@ -74,33 +57,20 @@ class _ChatBubbleState extends State<ChatBubble> {
             children: [
               Flexible(
                 child: Text(
-                  widget.message.text,
+                  message.text,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
               const SizedBox(
                 width: 10,
               ),
-
               Text(
-                formatter.format(widget.message.time),
+                formatter.format(message.time),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(
                 width: 2,
               ),
-              //Mostrar estado de lectura
-              widget.isMine
-                  ? widget.message.status == MessageStatus.leido
-                      ? const Icon(
-                          Icons.done_all,
-                          size: 15,
-                        )
-                      : const Icon(
-                          Icons.done,
-                          size: 15,
-                        )
-                  : const SizedBox.shrink(),
             ],
           ),
         ),
