@@ -16,7 +16,7 @@ Chat App es una aplicación de mensajería instantánea desarrollada con Flutter
 - [Dependencias](#dependencias)
 - [Capturas](#capturas)
 
----
+
 
 ## Instalación
 
@@ -31,7 +31,7 @@ Para instalar y ejecutar la aplicación, sigue estos pasos:
    cd chat_app
    ```
 
-3.  **Instala las Dependencias:**
+3. **Instala las Dependencias:**
    ```bash
    flutter pub get
    ```
@@ -40,13 +40,12 @@ Para instalar y ejecutar la aplicación, sigue estos pasos:
    ```bash
     flutter run
     ```
----
+
 
 ## Uso
 
 La aplicación permite el registro mediante Email y contraseña, además de autenticación por Google. Una vez dentro, se pueden agregar contactos por nombre de usuario y enviar mensajes a los contactos agregados.
 
----
 
 ## Arquitecturas del Proyecto
 El proyecto utiliza las siguientes arquitecturas:
@@ -69,7 +68,6 @@ Para instalar estas dependencias, ejecuta:
 flutter pub get
 ```
 
----
 
 ## Capturas
 
@@ -79,10 +77,10 @@ flutter pub get
 ![Captura de Pantalla 2](screenshots/S2.png)
 ![Captura de Pantalla 2](screenshots/S3.png)
 ![Captura de Pantalla 2](screenshots/S3.png)
----
+
 
 ## Licencia
 
 Este proyecto está bajo la [Licencia MIT](LICENSE).
 
----
+
